@@ -1,21 +1,27 @@
 "use client";
 import { MainTabs } from "@/components/main-tabs";
-import { useState } from "react";
+import { capitalizeFirstLetter } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { Metadata } from "@/types/metadata";
+import ToolsContent from "@/components/tools-content";
+import ProjectsContent from "@/components/projects-content";
 
-interface Metadata {
-  title: string;
-  description: string;
-  imageUrl: string | undefined;
-  category: string;
-}
-
-function MetadataFetcher() {
-  const [metadataList, setMetadataList] = useState<Metadata[]>([]);
+function MetadataFetcher({
+  onDataLoaded,
+  onCategoriesLoaded,
+}: {
+  onDataLoaded: (data: Metadata[]) => void;
+  onCategoriesLoaded: (categories: string[]) => void;
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [urls, setUrls] = useState([
     { url: "https://vercel.com", category: "hosting", language: null },
     { url: "https://docker.com", category: "infrastructure", language: null },
+    { url: "https://railway.app", category: "hosting", language: null },
+    { url: "https://cursor.io", category: "infrastructure", language: null },
+    { url: "https://supabase.com", category: "infrastructure", language: null },
+    { url: "https://sanity.io", category: "CMS", language: null },
   ]);
 
   const fetchMetadata = async () => {
@@ -35,7 +41,11 @@ function MetadataFetcher() {
       });
 
       const metadata = await Promise.all(promises);
-      setMetadataList(metadata);
+      onDataLoaded(metadata);
+      const categories = Array.from(
+        new Set(metadata.map((item) => capitalizeFirstLetter(item.category))),
+      );
+      onCategoriesLoaded(categories);
     } catch (error) {
       console.error("Error fetching metadata:", error);
       setError("Failed to fetch metadata. Please try again later.");
@@ -44,13 +54,10 @@ function MetadataFetcher() {
     }
   };
 
-  const metadataByCategory: { [category: string]: Metadata[] } = {};
-  metadataList.forEach((metadata) => {
-    if (!metadataByCategory[metadata.category]) {
-      metadataByCategory[metadata.category] = [];
-    }
-    metadataByCategory[metadata.category].push(metadata);
-  });
+  // Fetch metadata only once on component mount
+  useEffect(() => {
+    fetchMetadata();
+  }, []);
 
   return (
     <div>
@@ -63,54 +70,28 @@ function MetadataFetcher() {
       </button>
 
       {error && <p className="mt-2 text-red-500">{error}</p>}
-
-      {Object.entries(metadataByCategory).map(([category, metadataArray]) => (
-        <div key={category} className="mt-8">
-          <h2 className="text-xl font-semibold capitalize underline underline-offset-8">
-            {category}
-          </h2>
-          <div className="flex flex-col gap-6 divide-y pt-4">
-            {metadataArray.map((metadata, index) => (
-              <div key={index} className="flex flex-col gap-2 pt-4">
-                <h3 className="font-semibold">{metadata.title}</h3>
-                {metadata.imageUrl && (
-                  <img
-                    src={metadata.imageUrl}
-                    alt="Thumbnail"
-                    className="mt-2"
-                  />
-                )}
-                <p>{metadata.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
     </div>
   );
 }
 
-import React from "react";
-
-const ToolsContent = () => {
-  return <div>ToolsContent</div>;
-};
-
-const ProjectsContent = () => {
-  return <div>ProjectsContent</div>;
-};
-
 export default function Home() {
+  const [toolsMetadata, setToolsMetadata] = useState<Metadata[]>([]);
+  const [toolCategories, setToolCategories] = useState<string[]>([]);
+
   return (
     <main className="flex min-h-screen flex-col items-center p-24">
       <h1 className="text-4xl font-semibold tracking-wide">
         Developer Dashboard
       </h1>
       <MainTabs
-        ToolsContent={<ToolsContent />}
+        ToolsContent={<ToolsContent metadata={toolsMetadata} />}
         ProjectsContent={<ProjectsContent />}
+        toolCategories={toolCategories}
       />
-      <MetadataFetcher />
+      <MetadataFetcher
+        onDataLoaded={setToolsMetadata}
+        onCategoriesLoaded={setToolCategories}
+      />
     </main>
   );
 }

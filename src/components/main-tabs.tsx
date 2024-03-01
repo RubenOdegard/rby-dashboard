@@ -16,14 +16,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useStore } from "@/stores/store";
 import { ReactNode } from "react";
 
 interface MainTabsProps {
   ToolsContent: ReactNode;
   ProjectsContent: ReactNode;
+  toolCategories: string[];
 }
 
-export function MainTabs({ ToolsContent, ProjectsContent }: MainTabsProps) {
+export function MainTabs({
+  ToolsContent,
+  ProjectsContent,
+  toolCategories,
+}: MainTabsProps) {
+  const { selectedCategory, setSelectedCategory } = useStore();
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+  };
+
   return (
     <Tabs defaultValue="tools" className="w-full max-w-sm py-4">
       <TabsList className="mx-auto grid w-full grid-cols-2">
@@ -34,20 +46,29 @@ export function MainTabs({ ToolsContent, ProjectsContent }: MainTabsProps) {
         <Card>
           <CardHeader>
             <CardDescription>
-              <Select>
+              <Select
+                defaultValue="Select a category"
+                onValueChange={handleCategoryChange}
+                value={selectedCategory}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="hosting">Hosting</SelectItem>
-                  <SelectItem value="Infrastructure">Infrastructure</SelectItem>
-                  <SelectItem value="orm">ORM</SelectItem>
+                  {toolCategories.map((category, index) => (
+                    <SelectItem
+                      key={index}
+                      value={category}
+                      className="capitalize"
+                    >
+                      {category}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">{ToolsContent}</CardContent>
+          <CardContent className="space-y-3">{ToolsContent}</CardContent>
           <CardFooter></CardFooter>
         </Card>
       </TabsContent>
