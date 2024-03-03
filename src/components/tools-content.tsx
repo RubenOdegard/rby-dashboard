@@ -68,9 +68,6 @@ const ToolsContent = ({ metadata }: ToolsContentProps) => {
                   </MenubarItem>
                   <MenubarSeparator />
                   <MenubarItem className="line-through">
-                    {<EditIcon size={12} className="mr-2" />}Edit
-                  </MenubarItem>
-                  <MenubarItem className="line-through">
                     {<DeleteIcon size={12} className="mr-2 " />}
                     Delete
                   </MenubarItem>
