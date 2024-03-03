@@ -1,4 +1,4 @@
-import { capitalizeFirstLetter, cn } from "@/lib/utils";
+import { capitalizeFirstLetter, cn, getDomainName } from "@/lib/utils";
 import { useStore } from "@/stores/store";
 import { Metadata } from "@/types/metadata";
 import { DeleteIcon, EditIcon, ExternalLink, StarIcon } from "lucide-react";
@@ -12,6 +12,7 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import TestRemoveFavorites from "./test-remove-favorites";
 
 interface ToolsContentProps {
   metadata: Metadata[];
@@ -33,18 +34,30 @@ const ToolsContent = ({ metadata }: ToolsContentProps) => {
     );
   }
 
+  const toggleFavorite = useStore((state) => state.toggleFavorite);
+  const urls = useStore((state) => state.urls);
+
+  const handleToggleFavorite = (domain: string) => {
+    // Find the URL object for the given domain
+    const siteUrl = urls.find((url) => url.url === domain);
+    // Call toggleFavorite function with the URL object
+    if (siteUrl) {
+      toggleFavorite(siteUrl);
+    }
+  };
+
   return (
     <div className="-mt-8 flex flex-col gap-8 divide-y">
       {filteredMetadata.map((metadataItem, index) => (
         <div key={index} className="flex flex-col gap-4">
           <div className="mt-6 flex items-center justify-between">
             <Link
-              href={"https://" + metadataItem.domain}
+              href={metadataItem.domain}
               target={"_blank"}
               className=" flex items-center justify-start gap-2"
             >
               <h3 className="text-pretty rounded-md text-lg font-semibold decoration-yellow-400 underline-offset-4 hover:underline">
-                {capitalizeFirstLetter(metadataItem.domain)}
+                {capitalizeFirstLetter(getDomainName(metadataItem.domain))}
               </h3>
               <ExternalLink size={12} />
             </Link>
@@ -52,7 +65,9 @@ const ToolsContent = ({ metadata }: ToolsContentProps) => {
               <MenubarMenu>
                 <MenubarTrigger>...</MenubarTrigger>
                 <MenubarContent>
-                  <MenubarItem>
+                  <MenubarItem
+                    onClick={() => handleToggleFavorite(metadataItem.domain)}
+                  >
                     {
                       <StarIcon
                         size={12}

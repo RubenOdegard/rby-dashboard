@@ -30,6 +30,9 @@ export interface StoreState {
   // URLs array
   urls: Urls[];
   setUrls: (urls: Urls[]) => void; // Add setter for URLs
+
+  // Toggle favorite for a URL
+  toggleFavorite: (url: Urls) => void;
 }
 
 // Define the base data for URLs
@@ -105,4 +108,11 @@ export const useStore = create<StoreState>((set) => ({
 
   // Function to set URLs array
   setUrls: (urls) => set(() => ({ urls })),
+
+  toggleFavorite: (urlToUpdate) =>
+    set((state) => ({
+      urls: state.urls.map((url) =>
+        url.url === urlToUpdate.url ? { ...url, favorite: !url.favorite } : url,
+      ),
+    })),
 }));

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import cheerio from "cheerio";
-import { getDomainName } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +19,7 @@ export async function GET(request: NextRequest) {
     const title = $("title").text();
     const description = $('meta[name="description"]').attr("content");
     const imageUrl = $('meta[property="og:image"]').attr("content");
-    const domain = getDomainName(url);
+    const domain = url;
 
     return new Response(
       JSON.stringify({ domain, title, description, imageUrl }),
