@@ -1,59 +1,26 @@
 "use client";
-import { capitalizeFirstLetter } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import { Metadata } from "@/types/metadata";
-import { Urls } from "@/types/urls";
+import { capitalizeFirstLetter } from "@/lib/utils";
 import { useStore } from "@/stores/store";
 import { Diagnostics } from "@/components/diagnostics";
 import ContentRenderer from "@/components/content-renderer";
+import AddUrlForm from "@/components/add-url-form";
 
 export default function Home() {
-  const [toolsMetadata, setToolsMetadata] = useState<Metadata[]>([]);
-  const [toolCategories, setToolCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const urls: Urls[] = [
-    {
-      url: "https://vercel.com",
-      category: "hosting",
-      projects: null,
-      favorite: true,
-    },
-    {
-      url: "https://docker.com",
-      category: "infrastructure",
-      projects: null,
-      favorite: true,
-    },
-    {
-      url: "https://railway.app",
-      category: "hosting",
-      projects: null,
-      favorite: false,
-    },
-    {
-      url: "https://cursor.io",
-      category: "infrastructure",
-      projects: null,
-      favorite: false,
-    },
-    {
-      url: "https://supabase.com",
-      category: "infrastructure",
-      projects: null,
-      favorite: false,
-    },
-    {
-      url: "https://sanity.io",
-      category: "CMS",
-      projects: null,
-      favorite: false,
-    },
-  ];
+  const {
+    urls,
+    toolsMetadata,
+    toolCategories,
+    setToolsMetadata,
+    setToolCategories,
+    setFailedUrls,
+  } = useStore();
 
   const fetchData = async () => {
     try {
-      // Initate loading to true and error to null on each function run
+      // Initiate loading to true and error to null on each function run
       setIsLoading(true);
       setError(null);
 
@@ -80,8 +47,8 @@ export default function Home() {
         } catch (error) {
           // Handle error, and add failed urls to global failedUrls
           console.error("Error fetching metadata for", url, ":", error);
-          const prevUrls: string[] = useStore.getState().failedUrls;
-          useStore.getState().setFailedUrls([...prevUrls, url]);
+          const prevUrls = useStore.getState().failedUrls;
+          setFailedUrls([...prevUrls, url]);
           return null;
         }
       });
@@ -111,7 +78,7 @@ export default function Home() {
   // Initiate fetchData on component mount
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [urls]);
 
   return (
     <main className="flex min-h-screen flex-col items-center p-24">
@@ -119,6 +86,7 @@ export default function Home() {
         Developer Dashboard
       </h1>
       <Diagnostics />
+      <AddUrlForm />
       <ContentRenderer
         isLoading={isLoading}
         error={error}
