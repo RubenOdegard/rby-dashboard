@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useStore } from "@/stores/store";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 
 interface MainTabsProps {
   ToolsContent: ReactNode;
@@ -31,6 +31,10 @@ export function MainTabs({
   toolCategories,
 }: MainTabsProps) {
   const { selectedCategory, setSelectedCategory } = useStore();
+
+  useEffect(() => {
+    setSelectedCategory("all");
+  }, []);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
@@ -47,7 +51,7 @@ export function MainTabs({
           <CardHeader>
             <CardDescription>
               <Select
-                defaultValue="Select a category"
+                defaultValue="all"
                 onValueChange={handleCategoryChange}
                 value={selectedCategory}
               >
@@ -55,6 +59,8 @@ export function MainTabs({
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="favorites">Favorites</SelectItem>
                   {toolCategories.map((category, index) => (
                     <SelectItem
                       key={index}
@@ -68,7 +74,8 @@ export function MainTabs({
               </Select>
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">{ToolsContent}</CardContent>
+          {/* FIX: Remove margin/padding bottom inside the CardContent, not with a className maybe?*/}
+          <CardContent className="-mb-4 space-y-3">{ToolsContent}</CardContent>
           <CardFooter></CardFooter>
         </Card>
       </TabsContent>
