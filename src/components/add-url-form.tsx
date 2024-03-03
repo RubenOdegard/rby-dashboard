@@ -11,16 +11,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useStore } from "@/stores/store";
 import { Checkbox } from "./ui/checkbox";
+import { UrlFormData } from "@/types/urlFormData";
 
 const formSchema = z.object({
   url: z.string().url({ message: "Invalid URL format" }),
+  category: z.string().optional(),
 });
-
-interface UrlFormData {
-  url: string;
-}
 
 const AddUrlForm = () => {
   const {
@@ -36,45 +43,27 @@ const AddUrlForm = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const { urls, toolCategories, setUrls, setToolCategories } = useStore();
 
+  // Reset form when newCategory is changed
   const handleCheckboxChange = () => {
-    setIsNewCategory(!isNewCategory);
+    setIsNewCategory((prev) => !prev);
     setNewCategory("");
     setSelectedCategory("");
   };
 
+  // Reset form when newCategory is changed
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
   };
 
   const handleAddUrl = (data: UrlFormData) => {
     // Validate the input fields
-    if (
-      !data.url &&
-      !data.url.includes("https://") &&
-      !data.url.includes("http://")
-    ) {
-      alert("Please enter a valid URL.");
-      return;
-    }
-
-    if (isNewCategory) {
-      if (!newCategory) {
-        alert("Please enter the category.");
-        return;
-      }
-    } else {
-      if (!selectedCategory) {
-        alert("Please select a category.");
-        return;
-      }
-    }
+    formSchema.parse(data);
 
     // Check if the URL is already in the list
     if (urls.some((url) => url.url === data.url)) {
       alert("URL already exists in the list.");
       return;
     }
-
     // Create a new URL object
     const newUrlObject = {
       url: data.url,
@@ -100,77 +89,99 @@ const AddUrlForm = () => {
   };
 
   return (
-    <div className="mt-4 w-full max-w-sm rounded-md border p-4">
-      <h2 className="mb-2 text-lg font-semibold">Add New URL</h2>
-      <form
-        onSubmit={handleSubmit(handleAddUrl)}
-        className="flex flex-col space-y-4"
-      >
-        <div className="flex flex-col gap-1">
-          <label htmlFor="url" className="block">
-            URL:
-          </label>
-          <Input
-            type="text"
-            id="url"
-            {...register("url")}
-            className="rounded border p-2"
-          />
-
-          {errors.url && typeof errors.url === "string" && (
-            <p className="text-red-500">{errors.url}</p>
-          )}
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="newCategoryCheckbox"
-              checked={isNewCategory}
-              onCheckedChange={handleCheckboxChange}
-              className="form-checkbox h-5 w-5 text-blue-500"
-            />
-            <label
-              htmlFor="newCategoryCheckbox"
-              className="text-sm text-gray-600"
-            >
-              New Category
-            </label>
-          </div>
-          {isNewCategory ? (
-            <div>
-              <Input
-                type="text"
-                id="newCategory"
-                placeholder="Enter new category"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                className="rounded border p-2"
-              />
+    <Dialog>
+      <DialogTrigger className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+        Add Tool
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            <div className="flex flex-col gap-0.5">
+              <div>
+                Add a new <b className="text-yellow-400">Tool</b> by specifying
+                its URL
+              </div>
+              <span className="text-xs text-yellow-500">
+                URLs needs to include "https://" and not include path segments.
+              </span>
             </div>
-          ) : (
-            <Select
-              defaultValue="all"
-              onValueChange={handleCategoryChange}
-              value={selectedCategory}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {toolCategories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-        <Button type="submit" className="rounded px-4 py-2">
-          Add URL
-        </Button>
-      </form>
-    </div>
+          </DialogTitle>
+          <DialogDescription>
+            <div className="">
+              <form
+                onSubmit={handleSubmit(handleAddUrl)}
+                className="flex flex-col space-y-4"
+              >
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="url" className="sr-only">
+                    URL:
+                  </label>
+                  <Input
+                    type="text"
+                    id="url"
+                    placeholder="Enter URL: https://..."
+                    {...register("url")}
+                    className="mt-4 rounded border p-2"
+                  />
+
+                  {errors.url && (
+                    <p className="text-red-500">{errors.url.message}</p>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="newCategoryCheckbox"
+                      checked={isNewCategory}
+                      onCheckedChange={handleCheckboxChange}
+                      className="form-checkbox h-5 w-5 "
+                    />
+                    <label
+                      htmlFor="newCategoryCheckbox"
+                      className="text-sm text-gray-600"
+                    >
+                      New Category
+                    </label>
+                  </div>
+                  {isNewCategory ? (
+                    <div>
+                      <Input
+                        type="text"
+                        id="newCategory"
+                        placeholder="Enter new category"
+                        value={newCategory}
+                        onChange={(e) => setNewCategory(e.target.value)}
+                        className="rounded border p-2"
+                      />
+                    </div>
+                  ) : (
+                    <Select
+                      defaultValue="all"
+                      onValueChange={handleCategoryChange}
+                      value={selectedCategory}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {toolCategories.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+                <Button type="submit" className="rounded px-4 py-2">
+                  Add URL
+                </Button>
+              </form>
+            </div>
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
   );
 };
 

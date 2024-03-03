@@ -1,8 +1,10 @@
 import { useStore } from "@/stores/store";
 
 export function Diagnostics() {
+  // Get failedUrls from Zustand store
   const failedUrls = useStore((state) => state.failedUrls);
 
+  // Check if failedUrls is empty
   if (failedUrls.length === 0) {
     return null;
   }

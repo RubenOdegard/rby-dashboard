@@ -1,8 +1,9 @@
 import { capitalizeFirstLetter, cn, getDomainName } from "@/lib/utils";
 import { useStore } from "@/stores/store";
 import { Metadata } from "@/types/metadata";
-import { DeleteIcon, EditIcon, ExternalLink, StarIcon } from "lucide-react";
+import { DeleteIcon, ExternalLink, StarIcon } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 import {
   Menubar,
@@ -18,11 +19,12 @@ interface ToolsContentProps {
 }
 
 const ToolsContent = ({ metadata }: ToolsContentProps) => {
+  // Get selected category from Zustand store
   const selectedCategory = useStore((state) => state.selectedCategory);
   const lowercaseSelectedCategory = selectedCategory.toLowerCase();
 
+  // Filter metadata based on selected category
   let filteredMetadata: Metadata[] = [];
-
   if (lowercaseSelectedCategory === "all") {
     filteredMetadata = metadata;
   } else if (lowercaseSelectedCategory === "favorites") {
@@ -33,6 +35,7 @@ const ToolsContent = ({ metadata }: ToolsContentProps) => {
     );
   }
 
+  // Toggle favorite function, defined in Zustand store
   const toggleFavorite = useStore((state) => state.toggleFavorite);
   const urls = useStore((state) => state.urls);
 
@@ -55,14 +58,16 @@ const ToolsContent = ({ metadata }: ToolsContentProps) => {
               target={"_blank"}
               className=" flex items-center justify-start gap-2"
             >
-              <h3 className="text-pretty rounded-md text-lg font-semibold decoration-yellow-400 underline-offset-4 hover:underline">
+              <h3 className="text-pretty rounded-md text-2xl font-semibold decoration-yellow-400 underline-offset-4 hover:underline">
                 {capitalizeFirstLetter(getDomainName(metadataItem.domain))}
               </h3>
               <ExternalLink size={12} />
             </Link>
             <Menubar>
               <MenubarMenu>
-                <MenubarTrigger>...</MenubarTrigger>
+                <MenubarTrigger className="text-muted-foreground hover:text-yellow-400">
+                  ...
+                </MenubarTrigger>
                 <MenubarContent>
                   <MenubarItem
                     onClick={() => handleToggleFavorite(metadataItem.domain)}
@@ -90,8 +95,15 @@ const ToolsContent = ({ metadata }: ToolsContentProps) => {
             </Menubar>
           </div>
           {metadataItem.imageUrl && (
-            <img src={metadataItem.imageUrl} alt="Thumbnail" />
+            <Image
+              src={metadataItem.imageUrl}
+              alt={metadataItem.title}
+              quality={75}
+              height={1920}
+              width={1080}
+            />
           )}
+
           <h3 className="text-pretty font-semibold">{metadataItem.title}</h3>
           <p className="text-sm text-muted-foreground">
             {metadataItem.description}
