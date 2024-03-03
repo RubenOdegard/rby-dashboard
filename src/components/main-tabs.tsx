@@ -41,8 +41,8 @@ export function MainTabs({
   };
 
   return (
-    <Tabs defaultValue="tools" className="w-full max-w-sm py-4">
-      <TabsList className="mx-auto grid w-full grid-cols-2">
+    <Tabs defaultValue="tools" className="w-full max-w-6xl py-4">
+      <TabsList className="mx-auto grid w-full max-w-sm grid-cols-2">
         <TabsTrigger value="tools">Tools</TabsTrigger>
         <TabsTrigger value="projects">Projects</TabsTrigger>
       </TabsList>

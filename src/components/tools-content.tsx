@@ -12,7 +12,6 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import TestRemoveFavorites from "./test-remove-favorites";
 
 interface ToolsContentProps {
   metadata: Metadata[];
@@ -47,9 +46,9 @@ const ToolsContent = ({ metadata }: ToolsContentProps) => {
   };
 
   return (
-    <div className="-mt-8 flex flex-col gap-8 divide-y">
+    <div className="-mt-8 grid grid-cols-1 gap-x-8  md:grid-cols-2">
       {filteredMetadata.map((metadataItem, index) => (
-        <div key={index} className="flex flex-col gap-4">
+        <div key={index} className="mt-8 flex flex-col gap-4 border-t">
           <div className="mt-6 flex items-center justify-between">
             <Link
               href={metadataItem.domain}

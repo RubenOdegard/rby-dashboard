@@ -81,7 +81,7 @@ export default function Home() {
   }, [urls]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-24">
+    <main className="flex min-h-screen flex-col items-center sm:p-8 lg:p-24">
       <h1 className="pb-12 text-4xl font-semibold tracking-wide">
         Developer Dashboard
       </h1>
