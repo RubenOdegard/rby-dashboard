@@ -38,6 +38,12 @@ export interface StoreState {
 // Define the base data for URLs
 const baseUrls: Urls[] = [
   {
+    url: "https://turso.tech",
+    category: "hosting",
+    projects: null,
+    favorite: true,
+  },
+  {
     url: "https://vercel.com",
     category: "hosting",
     projects: null,
