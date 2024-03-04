@@ -1,3 +1,4 @@
+"use client";
 import { capitalizeFirstLetter, cn, getDomainName } from "@/lib/utils";
 import { useStore } from "@/stores/store";
 import { Metadata } from "@/types/metadata";
@@ -13,6 +14,10 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import {
+  deleteURLFromDatabase,
+  updateFavoriteStatusInDatabase,
+} from "@/app/actions";
 
 interface ToolsContentProps {
   metadata: Metadata[];
@@ -22,6 +27,7 @@ const ToolsContent = ({ metadata }: ToolsContentProps) => {
   // Get selected category from Zustand store
   const selectedCategory = useStore((state) => state.selectedCategory);
   const lowercaseSelectedCategory = selectedCategory.toLowerCase();
+  const { setUrls, urls, toggleFavorite } = useStore(); // Destructure setUrls and toggleFavorite from the store
 
   // Filter metadata based on selected category
   let filteredMetadata: Metadata[] = [];
@@ -35,23 +41,41 @@ const ToolsContent = ({ metadata }: ToolsContentProps) => {
     );
   }
 
-  // Toggle favorite function, defined in Zustand store
-  const toggleFavorite = useStore((state) => state.toggleFavorite);
-  const urls = useStore((state) => state.urls);
+  const handleToggleFavorite = async (metadata: Metadata) => {
+    try {
+      // Toggle favorite status in the Zustand store
+      toggleFavorite(metadata.id, !metadata.favorite);
 
-  const handleToggleFavorite = (domain: string) => {
-    // Find the URL object for the given domain
-    const siteUrl = urls.find((url) => url.url === domain);
-    // Call toggleFavorite function with the URL object
-    if (siteUrl) {
-      toggleFavorite(siteUrl);
+      // Update the database with the new favorite status
+      await updateFavoriteStatusInDatabase(metadata.id, !metadata.favorite);
+
+      // TODO: Add toast message
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      // Delete the URL from the database
+      await deleteURLFromDatabase(id);
+
+      // Delete the URL from the Zustand store
+      setUrls(urls.filter((url) => url.id !== id));
+
+      // TODO: Add toast message
+    } catch (error) {
+      console.error("Error deleting URL:", error);
     }
   };
 
   return (
     <div className="-mt-8 grid grid-cols-1 gap-x-8  md:grid-cols-2">
-      {filteredMetadata.map((metadataItem, index) => (
-        <div key={index} className="mt-8 flex flex-col gap-4 border-t">
+      {filteredMetadata.map((metadataItem) => (
+        <div
+          key={metadataItem.id}
+          className="mt-8 flex flex-col gap-4 border-t"
+        >
           <div className="mt-6 flex items-center justify-between">
             <Link
               href={metadataItem.domain}
@@ -70,7 +94,7 @@ const ToolsContent = ({ metadata }: ToolsContentProps) => {
                 </MenubarTrigger>
                 <MenubarContent>
                   <MenubarItem
-                    onClick={() => handleToggleFavorite(metadataItem.domain)}
+                    onClick={() => handleToggleFavorite(metadataItem)}
                   >
                     {
                       <StarIcon
@@ -86,7 +110,7 @@ const ToolsContent = ({ metadata }: ToolsContentProps) => {
                       : "Add to favorites"}
                   </MenubarItem>
                   <MenubarSeparator />
-                  <MenubarItem className="line-through">
+                  <MenubarItem onClick={() => handleDelete(metadataItem.id)}>
                     {<DeleteIcon size={12} className="mr-2 " />}
                     Delete
                   </MenubarItem>
@@ -95,15 +119,16 @@ const ToolsContent = ({ metadata }: ToolsContentProps) => {
             </Menubar>
           </div>
           {metadataItem.imageUrl && (
-            <Image
-              src={metadataItem.imageUrl}
-              alt={metadataItem.title}
-              quality={75}
-              height={1920}
-              width={1080}
-            />
+            <div className="relative aspect-video">
+              <Image
+                src={metadataItem.imageUrl}
+                alt={metadataItem.title}
+                quality={30}
+                layout="fill"
+                objectFit="cover"
+              />
+            </div>
           )}
-
           <h3 className="text-pretty font-semibold">{metadataItem.title}</h3>
           <p className="text-sm text-muted-foreground">
             {metadataItem.description}

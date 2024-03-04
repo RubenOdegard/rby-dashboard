@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const domain = url;
 
     return new Response(
-      JSON.stringify({ domain, title, description, imageUrl }),
+      JSON.stringify({ title, description, imageUrl, domain }),
       {
         status: 200,
         headers: { "Content-Type": "application/json" },

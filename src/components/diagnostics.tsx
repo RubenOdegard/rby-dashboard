@@ -1,4 +1,8 @@
+"use client";
 import { useStore } from "@/stores/store";
+
+// TODO: Implement a function to delete the failred urls from database.
+// Maybe a wipe-all button, or selectivly delete failed urls.
 
 export function Diagnostics() {
   // Get failedUrls from Zustand store

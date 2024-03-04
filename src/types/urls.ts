@@ -1,8 +1,7 @@
 export interface Urls {
-  // id: string;
+  id?: number;
   url: string;
   category: string;
-  projects: string[] | null;
+  project: string;
   favorite: boolean;
-  // createdAt: string;
 }

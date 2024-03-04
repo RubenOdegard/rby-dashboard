@@ -22,6 +22,7 @@ export interface StoreState {
   // View type
   viewExpanded: boolean;
   setViewExpanded: (view: boolean) => void;
+  // TODO: Implement function
 
   // Failed URLs
   failedUrls: string[];
@@ -32,54 +33,8 @@ export interface StoreState {
   setUrls: (urls: Urls[]) => void; // Add setter for URLs
 
   // Toggle favorite for a URL
-  toggleFavorite: (url: Urls) => void;
+  toggleFavorite: (id: number, newFavoriteStatus: boolean) => void;
 }
-
-// Define the base data for URLs
-const baseUrls: Urls[] = [
-  {
-    url: "https://turso.tech",
-    category: "hosting",
-    projects: null,
-    favorite: true,
-  },
-  {
-    url: "https://vercel.com",
-    category: "hosting",
-    projects: null,
-    favorite: true,
-  },
-  {
-    url: "https://docker.com",
-    category: "infrastructure",
-    projects: null,
-    favorite: true,
-  },
-  {
-    url: "https://railway.app",
-    category: "hosting",
-    projects: null,
-    favorite: false,
-  },
-  {
-    url: "https://cursor.sh",
-    category: "infrastructure",
-    projects: null,
-    favorite: false,
-  },
-  {
-    url: "https://supabase.com",
-    category: "infrastructure",
-    projects: null,
-    favorite: false,
-  },
-  {
-    url: "https://sanity.io",
-    category: "CMS",
-    projects: null,
-    favorite: false,
-  },
-];
 
 // Initialize Zustand store with initial state
 export const useStore = create<StoreState>((set) => ({
@@ -109,16 +64,16 @@ export const useStore = create<StoreState>((set) => ({
   failedUrls: [],
   setFailedUrls: (urls) => set(() => ({ failedUrls: urls })),
 
-  // Initialize URLs array with base data
-  urls: baseUrls,
-
+  // URLs array
+  urls: [],
   // Function to set URLs array
   setUrls: (urls) => set(() => ({ urls })),
 
-  toggleFavorite: (urlToUpdate) =>
+  // Toggle favorite for a URL
+  toggleFavorite: (id: number, newFavoriteStatus: boolean) =>
     set((state) => ({
       urls: state.urls.map((url) =>
-        url.url === urlToUpdate.url ? { ...url, favorite: !url.favorite } : url,
+        url.id === id ? { ...url, favorite: newFavoriteStatus } : url,
       ),
     })),
 }));
