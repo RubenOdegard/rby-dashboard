@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,7 +5,6 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-
 import {
   Select,
   SelectContent,
@@ -16,31 +14,43 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useStore } from "@/stores/store";
-import { ReactNode, useEffect } from "react";
+import { useEffect } from "react";
 import AddUrlForm from "./add-url-form";
+import ToolsTabContent from "./tools-tab-content";
+import ProjectsTabContent from "./projects-tab-content";
+import { ViewSelection } from "./view-selection";
 
 interface MainTabsProps {
-  ToolsContent: ReactNode;
-  ProjectsContent: ReactNode;
   toolCategories: string[];
 }
 
-export function MainTabs({
-  ToolsContent,
-  ProjectsContent,
-  toolCategories,
-}: MainTabsProps) {
-  const { selectedCategory, setSelectedCategory } = useStore();
+export function MainTabs({ toolCategories }: MainTabsProps) {
+  const {
+    selectedCategory,
+    setSelectedCategory,
+    selectedProject,
+    setSelectedProject,
+    toolsMetadata,
+  } = useStore();
 
+  // Load the selected category and project from local storage
   useEffect(() => {
+    // Handle
     const storedCategory = localStorage.getItem("selectedCategory");
     if (storedCategory) {
       setSelectedCategory(storedCategory);
     } else {
       setSelectedCategory("all");
     }
+    const storedProject = localStorage.getItem("selectedProject");
+    if (storedProject) {
+      setSelectedProject(storedProject);
+    } else {
+      setSelectedProject("");
+    }
   }, []);
 
+  // Push the selected category to local storage so it persists on refresh
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     localStorage.setItem("selectedCategory", category);
@@ -55,38 +65,48 @@ export function MainTabs({
       <TabsContent value="tools">
         <Card>
           <CardHeader>
-            <CardDescription className="flex items-center justify-between gap-2">
-              <Button className="inline-flex h-10 items-center justify-center whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground opacity-0 ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
-                Add Tool
-              </Button>
-              <Select
-                defaultValue="all"
-                onValueChange={handleCategoryChange}
-                value={selectedCategory}
-              >
-                <SelectTrigger className="mx-auto max-w-sm">
-                  <SelectValue />
-                </SelectTrigger>
+            {/* // NOTE: Removed <CardDescription> because of hydration errors with child elements. */}
+            <div className="grid w-full grid-cols-12 items-center gap-2">
+              <div className="col-span-6 row-start-1 md:col-span-2 md:col-start-1">
+                {/* // NOTE: Rendering the view selection component, toggle between collapsed and expanded view.*/}
+                <ViewSelection divider={true} />
+              </div>
 
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="favorites">Favorites</SelectItem>
-                  {toolCategories.map((category, index) => (
-                    <SelectItem
-                      key={index}
-                      value={category}
-                      className="capitalize"
-                    >
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {/* // NOTE: Rendering a select component to filter tools by category.*/}
+              <div className="col-span-12 mx-auto w-full md:col-span-6 md:col-start-4 md:max-w-sm">
+                <Select
+                  defaultValue="all"
+                  onValueChange={handleCategoryChange}
+                  value={selectedCategory}
+                >
+                  <SelectTrigger className="mx-auto md:max-w-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="favorites">Favorites</SelectItem>
+                    {toolCategories.map((category, index) => (
+                      <SelectItem
+                        key={index}
+                        value={category}
+                        className="capitalize"
+                      >
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <AddUrlForm />
-            </CardDescription>
+              {/* // NOTE: Rendering a popup dialog with a form to add a new URL.*/}
+              <div className="col-span-6 row-start-1 justify-self-end md:col-span-2 md:col-start-11">
+                <AddUrlForm />
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="-mb-4 space-y-3">{ToolsContent}</CardContent>
+          <CardContent className="-mb-4 space-y-3">
+            <ToolsTabContent metadata={toolsMetadata} />
+          </CardContent>
           <CardFooter></CardFooter>
         </Card>
       </TabsContent>
@@ -106,7 +126,9 @@ export function MainTabs({
               </Select>
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">{ProjectsContent}</CardContent>
+          <CardContent className="space-y-2">
+            <ProjectsTabContent />
+          </CardContent>
           <CardFooter></CardFooter>
         </Card>
       </TabsContent>

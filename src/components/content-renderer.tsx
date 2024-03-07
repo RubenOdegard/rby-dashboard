@@ -1,13 +1,10 @@
 "use client";
 
-// Import the necessary modules
-import { fetchDataFromDatabase } from "@/app/actions"; // Adjust the import path as needed
+import { fetchDataFromDatabase } from "@/app/actions";
 import { useEffect, useState } from "react";
 import { useStore } from "@/stores/store";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { MainTabs } from "./main-tabs";
-import ProjectsContent from "./projects-content";
-import ToolsContent from "./tools-content";
 import { MainTabsSkeleton } from "./main-tabs-skeleton";
 
 const ContentRenderer = () => {
@@ -16,7 +13,6 @@ const ContentRenderer = () => {
   const {
     urls,
     setUrls,
-    toolsMetadata,
     toolCategories,
     setToolsMetadata,
     setToolCategories,
@@ -83,10 +79,12 @@ const ContentRenderer = () => {
     setToolCategories(categories);
   };
 
+  // fetch data on mount
   useEffect(() => {
     fetchAllData();
   }, []);
 
+  // fetch metadata when URLs change and not empty
   useEffect(() => {
     if (urls.length > 0) {
       fetchMetadata();
@@ -99,13 +97,7 @@ const ContentRenderer = () => {
   } else if (error !== null) {
     return <p className="mt-2 text-red-500">{error}</p>;
   } else {
-    return (
-      <MainTabs
-        ToolsContent={<ToolsContent metadata={toolsMetadata} />}
-        ProjectsContent={<ProjectsContent />}
-        toolCategories={toolCategories}
-      />
-    );
+    return <MainTabs toolCategories={toolCategories} />;
   }
 };
 

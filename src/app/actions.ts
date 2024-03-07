@@ -6,8 +6,6 @@ import { Urls } from "@/types/urls";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-import { revalidateTag } from "next/cache";
-
 // Function to test database with sample data
 export async function insertSampleData() {
   try {

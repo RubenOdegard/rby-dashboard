@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import moment from "moment";
 import { z } from "zod";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -24,11 +25,15 @@ import { useStore } from "@/stores/store";
 import { Checkbox } from "./ui/checkbox";
 import { UrlFormData } from "@/types/urlFormData";
 import { fetchDataFromDatabase, insertURLToDatabase } from "@/app/actions";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   url: z.string().url({ message: "Invalid URL format" }),
   category: z.string().optional(),
 });
+
+// TODO: Add a preview of the urls, triggered by a button (so we dont fetch every time you open a form"
+// TODO: Handle user auth if needed
 
 const AddUrlForm = () => {
   const {
@@ -72,6 +77,12 @@ const AddUrlForm = () => {
     // Validate the input fields
     formSchema.parse(data);
 
+    // Check if the URL is already in the list
+    if (urls.some((url) => url.url === data.url)) {
+      alert("URL already exists in the list.");
+      return;
+    }
+
     // Call insertURLToDatabase to insert the URL into the database
     try {
       const id = generateRandomId();
@@ -92,29 +103,19 @@ const AddUrlForm = () => {
           favorite: false,
         },
       ]);
+      toast.success(`Successfully added ${data.url}.`, {
+        description: moment(Date.now()).format("MMMM Do YYYY, h:mm:ss a"),
+        closeButton: true,
+      });
     } catch (error) {
       console.error("Error inserting URL to database:", error);
-      // Handle error if necessary
+      toast.error(`Error -  ${data.url}`),
+        {
+          description: moment(Date.now()).format("MMMM Do YYYY, h:mm:ss a"),
+          closeButton: true,
+        };
       return;
     }
-
-    // Check if the URL is already in the list
-    if (urls.some((url) => url.url === data.url)) {
-      alert("URL already exists in the list.");
-      return;
-    }
-
-    // Create a new URL object
-    const newUrlObject = {
-      url: data.url,
-      category: isNewCategory ? newCategory : selectedCategory,
-      project: "none",
-      favorite: false,
-    };
-
-    // Add the new URL to the existing URLs array
-    // const updatedUrls = [...urls, newUrlObject];
-    // setUrls(updatedUrls);
 
     // If it's a new category, add it to the existing categories
     if (isNewCategory) {
@@ -144,7 +145,8 @@ const AddUrlForm = () => {
                 its URL
               </div>
               <span className="text-xs text-yellow-500">
-                URLs needs to include "https://" and not include path segments.
+                URLs needs to include &quot;https://&quot; and not include path
+                segments.
               </span>
             </div>
           </DialogTitle>

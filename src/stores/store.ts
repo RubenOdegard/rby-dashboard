@@ -22,7 +22,6 @@ export interface StoreState {
   // View type
   viewExpanded: boolean;
   setViewExpanded: (view: boolean) => void;
-  // TODO: Implement function
 
   // Failed URLs
   failedUrls: string[];
