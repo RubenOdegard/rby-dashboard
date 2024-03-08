@@ -4,43 +4,45 @@ import { cn } from "@/lib/utils";
 import { useStore } from "@/stores/store";
 
 interface ViewSelectionProps {
-  className?: string;
-  divider?: boolean;
+	className?: string;
+	divider?: boolean;
 }
 
 export const ViewSelection = ({ className, divider }: ViewSelectionProps) => {
-  const { setViewExpanded, viewExpanded } = useStore();
+	const { setViewExpanded, viewExpanded } = useStore();
 
-  const disabledStyling =
-    "  cursor-pointer text-gray-700 transition-all hover:animate-pulse hover:text-yellow-400";
-  const enabledStyling =
-    "cursor-pointer bg-gray-950 text-foreground transition-all ";
+	const disabledStyling =
+		"cursor-pointer text-gray-700 transition-all hover:animate-pulse hover:text-yellow-400";
+	const enabledStyling =
+		"cursor-pointer bg-gray-950 text-foreground transition-all";
 
-  // FIX: Remove padding left on LayoutList when divider is false
+	const handleViewExpanded = () => {
+		setViewExpanded(!viewExpanded);
+	};
 
-  return (
-    <div
-      className={
-        cn(className) +
-        ` ${
-          divider ? "w-20 gap-1.5 divide-x-2 divide-gray-900" : "w-[72px] gap-1"
-        } flex h-10 items-center justify-center rounded-md border bg-gray-950`
-      }
-    >
-      <button className="m-0 p-0">
-        <ColumnsIcon
-          className={`${viewExpanded ? enabledStyling : disabledStyling} `}
-          onClick={() => setViewExpanded(true)}
-        />
-      </button>
-      <button className={`${divider === true ? "pl-1.5" : ""} + m-0 p-0`}>
-        <LayoutList
-          className={`${viewExpanded ? disabledStyling : enabledStyling} `}
-          onClick={() => setViewExpanded(false)}
-        />
-      </button>
-    </div>
-  );
+	return (
+		<div
+			className={
+				cn(className) +
+				` ${
+					divider ? "w-20 gap-1.5 divide-x-2 divide-gray-900" : "w-[72px] gap-1"
+				} flex h-10 items-center justify-center rounded-md border bg-gray-950`
+			}
+		>
+			<button className="m-0 p-0">
+				<ColumnsIcon
+					className={`${viewExpanded ? enabledStyling : disabledStyling} `}
+					onClick={() => handleViewExpanded()}
+				/>
+			</button>
+			<button className={`${divider === true ? "pl-1.5" : ""} + m-0 p-0`}>
+				<LayoutList
+					className={`${viewExpanded ? disabledStyling : enabledStyling} `}
+					onClick={() => handleViewExpanded()}
+				/>
+			</button>
+		</div>
+	);
 };
 
 export default ViewSelection;

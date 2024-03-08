@@ -214,7 +214,7 @@ const ToolsCollapsedView = ({
             {metadataItem.imageUrl && (
               <Link
                 href={metadataItem.domain}
-                className="relative col-span-3 aspect-video overflow-clip rounded-xl border"
+className={cn(hoveredImageId === metadataItem.id && "border-yellow-400", " relative col-span-3 aspect-video overflow-clip rounded-xl border transition-all duration-1000")}
                 target={"_blank"}
               >
                 <div
