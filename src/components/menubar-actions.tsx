@@ -23,8 +23,8 @@ const MenubarActions: React.FC<MenubarActionsProps> = ({
 	return (
 		<Menubar>
 			<MenubarMenu>
-				<MenubarTrigger className="flex aspect-square w-[24px] items-center justify-center p-1 text-muted-foreground hover:text-yellow-400">
-					<MoreHorizontal size={12} />
+				<MenubarTrigger className="flex aspect-square  items-center justify-center p-2 text-muted-foreground hover:text-yellow-400">
+					<MoreHorizontal size={16} />
 				</MenubarTrigger>
 				<MenubarContent>
 					<MenubarItem onClick={() => onToggleFavorite(metadataItem)}>

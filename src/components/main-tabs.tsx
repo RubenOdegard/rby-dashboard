@@ -65,10 +65,10 @@ export function MainTabs({ toolCategories }: MainTabsProps) {
 				<Card>
 					<CardHeader>
 						<div className="grid w-full grid-cols-12 items-center gap-2">
-							<div className="col-span-6 row-start-1 md:col-span-2 md:col-start-1">
+							<div className="col-span-2 row-start-1 hidden sm:col-span-2 sm:flex md:col-start-1">
 								<ViewSelection divider={true} />
 							</div>
-							<div className="col-span-12 mx-auto w-full md:col-span-6 md:col-start-4 md:max-w-sm">
+							<div className="col-span-10 row-start-1 w-full sm:col-span-8">
 								<Select
 									defaultValue="all"
 									onValueChange={handleCategoryChange}
@@ -104,7 +104,7 @@ export function MainTabs({ toolCategories }: MainTabsProps) {
 									</SelectContent>
 								</Select>
 							</div>
-							<div className="col-span-6 row-start-1 justify-self-end md:col-span-2 md:col-start-11">
+							<div className="col-span-2 row-start-1 flex w-full justify-end sm:col-span-2">
 								<AddUrlForm />
 							</div>
 						</div>

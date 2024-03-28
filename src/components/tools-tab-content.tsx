@@ -58,10 +58,10 @@ const ToolsTabContent = ({ metadata }: ToolsContentProps) => {
 			const toastMessage = metadata.favorite
 				? `Removed ${capitalizeFirstLetter(
 						getDomainName(metadata.url),
-				  )} from your favorites.`
+					)} from your favorites.`
 				: `Added ${capitalizeFirstLetter(
 						getDomainName(metadata.url),
-				  )} to your favorites.`;
+					)} to your favorites.`;
 			toastSuccess(toastMessage);
 		} catch (error) {
 			console.error("Error toggling favorite:", error);
@@ -115,10 +115,7 @@ const ToolsExpandedView = ({
 	return (
 		<div className="-mt-8 grid grid-cols-1 gap-x-8  md:grid-cols-2">
 			{filteredMetadata.map((metadataItem) => (
-				<div
-					key={metadataItem.id}
-					className="mt-8 flex flex-col gap-4 border-t"
-				>
+				<div key={metadataItem.id} className="mt-8 flex flex-col border-t">
 					<div className="mt-6 flex items-center justify-between">
 						<TextDomain
 							domain={metadataItem.domain}
@@ -138,8 +135,9 @@ const ToolsExpandedView = ({
 						id={metadataItem.id}
 						handleImageHover={handleImageHover}
 						handleImageLeave={handleImageLeave}
+						className="mt-4"
 					/>
-					<TextTitle title={metadataItem.title} />
+					<TextTitle title={metadataItem.title} className="mt-4" />
 					<TextDescription description={metadataItem.description} />
 				</div>
 			))}
@@ -176,9 +174,9 @@ const ToolsCollapsedView = ({
 							id={metadataItem.id}
 							handleImageHover={handleImageHover}
 							handleImageLeave={handleImageLeave}
-							className="col-span-3"
+							className="col-span-12 row-start-1 sm:col-span-4 md:col-span-4"
 						/>
-						<div className="col-span-9 space-y-0.5">
+						<div className="col-span-12 row-start-2 mt-4 space-y-1 sm:col-span-8 sm:row-start-1 sm:mt-0">
 							<div className="flex items-center justify-between">
 								<TextDomain
 									domain={metadataItem.domain}

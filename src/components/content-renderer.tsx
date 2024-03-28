@@ -46,7 +46,7 @@ const ContentRenderer = () => {
 		}
 
 		// FIX: Metadata loading state prevents the UI from updating by each element, forces a rerender
-		setIsMetaDataLoading(true);
+		setIsMetaDataLoading(false); // true
 		setError(null);
 
 		const promises = urls.map(async (urlObject) => {

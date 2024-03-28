@@ -26,7 +26,7 @@ export const ViewSelection = ({ className, divider }: ViewSelectionProps) => {
 				cn(className) +
 				` ${
 					divider ? "w-20 gap-1.5 divide-x-2 divide-gray-900" : "w-[72px] gap-1"
-				} flex h-10 items-center justify-center rounded-md border bg-gray-950`
+				}  hidden h-10 items-center justify-center rounded-md border bg-gray-950 sm:flex`
 			}
 		>
 			<button className="m-0 p-0">

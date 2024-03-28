@@ -1,6 +1,6 @@
 const TextDescription = (text: { description?: string }) => {
 	return (
-		<p className="text-pretty pt-2 text-xs text-muted-foreground">
+		<p className="text-pretty pt-1 text-base text-muted-foreground">
 			{text.description || "No description"}
 		</p>
 	);

@@ -15,10 +15,10 @@ import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-	DialogFooter,
 } from "@/components/ui/dialog";
 import { useStore } from "@/stores/store";
 import { Checkbox } from "./ui/checkbox";
@@ -26,6 +26,7 @@ import { UrlFormData } from "@/types/urlFormData";
 import { fetchDataFromDatabase, insertURLToDatabase } from "@/app/actions";
 import { generateRandomId, toastError, toastSuccess } from "@/lib/utils";
 import PreviewFormUntertitle from "./preview-form-undertitle";
+import { PlusIcon } from "lucide-react";
 
 const formSchema = z.object({
 	url: z.string().url({ message: "Invalid URL format" }),
@@ -188,37 +189,32 @@ const AddUrlForm = () => {
 	return (
 		<Dialog open={dialogOpen} onOpenChange={handleDialogChange}>
 			<DialogTrigger asChild>
-				<Button variant="outline">Add Tool</Button>
+				<Button variant="outline">
+					<PlusIcon size={14} />
+				</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>
-						<div className="flex flex-col gap-0.5">
-							<div>
-								Add a new <b className="text-yellow-400">Tool</b> by specifying
-								its URL
-							</div>
-							<span className="text-xs text-yellow-500">
-								URLs needs to include &quot;https://&quot; and not include path
-								segments.
-							</span>
+						<div className="flex flex-col gap-0.5 text-2xl">
+							<div>Add a new URL</div>
 						</div>
 					</DialogTitle>
 					<DialogDescription>
 						<form
 							onSubmit={handleSubmit(handleAddUrl)}
-							className="flex flex-col space-y-4"
+							className="flex flex-col space-y-6"
 						>
-							<div className="flex flex-col gap-1">
-								<label htmlFor="url" className="sr-only">
-									URL:
+							<div className="mt-1 flex flex-col gap-1 border-t">
+								<label htmlFor="url" className="mb-1 ml-1 mt-4 text-yellow-400">
+									Website URL
 								</label>
 								<Input
 									type="text"
 									id="url"
-									placeholder="https://..."
+									placeholder="https://rubenodegard.com"
 									{...register("url")}
-									className="mt-4"
+									className=""
 								/>
 
 								{errors.url && (
@@ -226,7 +222,7 @@ const AddUrlForm = () => {
 								)}
 							</div>
 							<div className="flex flex-col gap-4">
-								<div className="flex items-center space-x-2 ">
+								<div className="ml-1 flex items-center space-x-2">
 									<Checkbox
 										id="newCategoryCheckbox"
 										checked={isNewCategory}
@@ -239,7 +235,7 @@ const AddUrlForm = () => {
 											isNewCategory
 												? "text-yellow-400"
 												: "" +
-												  "select-none text-sm text-gray-600 hover:cursor-pointer"
+													"select-none text-sm text-gray-600 hover:cursor-pointer"
 										}
 									>
 										New Category
