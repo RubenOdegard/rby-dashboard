@@ -94,9 +94,6 @@ export function MainTabs({ toolCategories }: MainTabsProps) {
 															const match =
 																metadata.category.toLowerCase() ===
 																category.toLowerCase();
-															console.log(
-																`Item: ${metadata.title}, Category: ${metadata.category}, Match: ${match}`,
-															);
 															return match;
 														}).length
 													}
