@@ -13,11 +13,14 @@ if (!process.env.TURSO_AUTH_TOKEN) {
 }
 
 export default {
-  schema: "./src/drizzle/schema.ts",
-  out: "./src/drizzle/migrations",
+  schema: "./src/db/schema.ts",
+  out: "./migrations",
   driver: "turso",
+  verbose: true,
   dbCredentials: {
-    url: process.env.TURSO_DATABASE_URL!,
+    url: process.env.TURSO_DATABASE_URL,
     authToken: process.env.TURSO_AUTH_TOKEN,
   },
 } satisfies Config;
+
+// turso db shell turso-prisma-db < ./prisma/migrations/20230922132717_init/migration.sql

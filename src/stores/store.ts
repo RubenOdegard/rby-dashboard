@@ -1,82 +1,105 @@
 import { create } from "zustand";
 import { Metadata } from "@/types/metadata";
 import { Urls } from "@/types/urls";
+import { Projects } from "@/types/projects";
+import { ProjectUrls } from "@/types/project-urls";
 
 export interface StoreState {
-	// Selected category type
-	selectedCategory: string;
-	setSelectedCategory: (category: string) => void;
+  // Selected category type
+  selectedCategory: string;
+  setSelectedCategory: (category: string) => void;
 
-	// Selected project type
-	selectedProject: string;
-	setSelectedProject: (project: string) => void;
+  // Selected project type
+  selectedProject: string;
+  setSelectedProject: (project: string) => void;
 
-	// Array of tools type
-	toolsMetadata: Metadata[];
-	setToolsMetadata: (metadata: Metadata[]) => void;
+  // Selected project type
+  selectedTab: string;
+  setSelectedTab: (project: string) => void;
 
-	// Set of categories for tools type
-	toolCategories: string[];
-	setToolCategories: (categories: string[]) => void;
+  // Array of tools type
+  toolsMetadata: Metadata[];
+  setToolsMetadata: (metadata: Metadata[]) => void;
 
-	// View type
-	viewExpanded: boolean;
-	setViewExpanded: (view: boolean) => void;
+  // Set of categories for tools type
+  toolCategories: string[];
+  setToolCategories: (categories: string[]) => void;
 
-	// Failed URLs
-	failedUrls: string[];
-	setFailedUrls: (urls: string[]) => void;
+  // View type
+  viewExpanded: boolean;
+  setViewExpanded: (view: boolean) => void;
 
-	// URLs array
-	urls: Urls[];
-	setUrls: (urls: Urls[]) => void; // Add setter for URLs
+  // Failed URLs
+  failedUrls: string[];
+  setFailedUrls: (urls: string[]) => void;
 
-	// Toggle favorite for a URL
-	toggleFavorite: (id: number, newFavoriteStatus: boolean) => void;
+  // URLs array
+  urls: Urls[];
+  setUrls: (urls: Urls[]) => void;
+
+  // Projects array
+  projects: Projects[];
+  setProjects: (projects: Projects[]) => void;
+
+  // projectUrls
+  projectUrls: ProjectUrls[];
+  setProjectUrls: (projectUrls: ProjectUrls[]) => void;
+
+  // Toggle favorite for a URL
+  toggleFavorite: (id: number, newFavoriteStatus: boolean) => void;
 }
 
 export const useStore = create<StoreState>((set) => {
-	// Initialize viewExpanded from localStorage if available, or set to false
-	const viewExpandedFromLocalStorage =
-		typeof window !== "undefined" ? localStorage.getItem("viewExpanded") : null;
-	const initialViewExpanded = viewExpandedFromLocalStorage
-		? JSON.parse(viewExpandedFromLocalStorage)
-		: false;
+  // Initialize viewExpanded from localStorage if available, or set to false
+  const viewExpandedFromLocalStorage =
+    typeof window !== "undefined" ? localStorage.getItem("viewExpanded") : null;
+  const initialViewExpanded = viewExpandedFromLocalStorage
+    ? JSON.parse(viewExpandedFromLocalStorage)
+    : false;
 
-	return {
-		selectedCategory: "all",
-		setSelectedCategory: (category) =>
-			set(() => ({ selectedCategory: category })),
+  return {
+    selectedCategory: "all",
+    setSelectedCategory: (category) =>
+      set(() => ({ selectedCategory: category })),
 
-		selectedProject: "",
-		setSelectedProject: (project) => set(() => ({ selectedProject: project })),
+    selectedProject: "",
+    setSelectedProject: (project) => set(() => ({ selectedProject: project })),
 
-		toolsMetadata: [],
-		setToolsMetadata: (metadata) => set(() => ({ toolsMetadata: metadata })),
+    selectedTab: "",
+    setSelectedTab: (tab) => set(() => ({ selectedTab: tab })),
 
-		toolCategories: [],
-		setToolCategories: (categories) =>
-			set(() => ({ toolCategories: categories })),
+    toolsMetadata: [],
+    setToolsMetadata: (metadata) => set(() => ({ toolsMetadata: metadata })),
 
-		viewExpanded: initialViewExpanded,
-		setViewExpanded: (view) => {
-			set(() => ({ viewExpanded: view }));
-			if (typeof window !== "undefined") {
-				localStorage.setItem("viewExpanded", JSON.stringify(view));
-			}
-		},
+    toolCategories: [],
+    setToolCategories: (categories) =>
+      set(() => ({ toolCategories: categories })),
 
-		failedUrls: [],
-		setFailedUrls: (urls) => set(() => ({ failedUrls: urls })),
+    viewExpanded: initialViewExpanded,
+    setViewExpanded: (view) => {
+      set(() => ({ viewExpanded: view }));
+      if (typeof window !== "undefined") {
+        localStorage.setItem("viewExpanded", JSON.stringify(view));
+      }
+    },
 
-		urls: [],
-		setUrls: (urls) => set(() => ({ urls })),
+    failedUrls: [],
+    setFailedUrls: (urls) => set(() => ({ failedUrls: urls })),
 
-		toggleFavorite: (id: number, newFavoriteStatus: boolean) =>
-			set((state) => ({
-				urls: state.urls.map((url) =>
-					url.id === id ? { ...url, favorite: newFavoriteStatus } : url,
-				),
-			})),
-	};
+    urls: [],
+    setUrls: (urls) => set(() => ({ urls })),
+
+    projects: [],
+    setProjects: (projects) => set(() => ({ projects })),
+
+    projectUrls: [],
+    setProjectUrls: (projectUrls) => set(() => ({ projectUrls })),
+
+    toggleFavorite: (id: number, newFavoriteStatus: boolean) =>
+      set((state) => ({
+        urls: state.urls.map((url) =>
+          url.id === id ? { ...url, favorite: newFavoriteStatus } : url,
+        ),
+      })),
+  };
 });

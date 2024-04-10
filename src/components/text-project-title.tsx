@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-const TextTitle = ({
+const TextProjectTitle = ({
   title,
   className,
 }: {
@@ -10,7 +10,7 @@ const TextTitle = ({
   return (
     <h3
       className={cn(
-        "text-pretty text-md border/50 border-b pb-1 font-semibold sm:text-lg",
+        "text-pretty text-center text-lg font-semibold xs:text-2xl sm:text-3xl md:text-4xl md:font-bold",
         className,
       )}
     >
@@ -19,4 +19,4 @@ const TextTitle = ({
   );
 };
 
-export default TextTitle;
+export default TextProjectTitle;

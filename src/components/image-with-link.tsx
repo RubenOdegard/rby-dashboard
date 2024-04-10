@@ -36,7 +36,7 @@ const ImageWithLink = ({
 		<Link href={domain} target="_blank" passHref className={className}>
 			<div
 				className={cn(
-					"relative aspect-video overflow-clip rounded-xl border transition-all duration-1000",
+					"relative aspect-video overflow-clip rounded-xl border shadow-lg transition-all duration-1000",
 					{ "border-yellow-400": isHovered },
 				)}
 				onMouseEnter={handleMouseEnter}

@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import LayoutProvider from "./layout-provider";
 import AuthProvider from "./auth-provider";
-
-const inter = Inter({ subsets: ["latin"] });
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 
 export const metadata: Metadata = {
 	title: "Developer Dashboard",
@@ -20,10 +19,11 @@ export default async function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning={true}>
 			<body
-				className={
-					(cn(inter.className),
-					"min-h-screen bg-background font-sans antialiased")
-				}
+				className={cn(
+					"relative min-h-screen bg-background font-sans antialiased",
+					GeistSans.variable,
+					GeistMono.variable,
+				)}
 			>
 				<AuthProvider>
 					<LayoutProvider>{children}</LayoutProvider>

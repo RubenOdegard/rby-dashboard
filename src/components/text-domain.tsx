@@ -22,7 +22,7 @@ const TextDomain = ({
 			className="flex items-center justify-start gap-2"
 		>
 			<h3
-				className={`text-pretty rounded-md text-2xl font-semibold decoration-yellow-400 underline-offset-4 transition-all hover:underline ${
+				className={`text-pretty truncate rounded-lg text-xl font-semibold decoration-yellow-400 underline-offset-4 transition-all hover:underline sm:text-2xl ${
 					isHovered ? "text-yellow-400" : "text-foreground"
 				}`}
 				onMouseEnter={handleMouseEnter}
@@ -30,7 +30,7 @@ const TextDomain = ({
 			>
 				{domainName || "No domain"}
 			</h3>
-			<ExternalLink size={12} />
+			<ExternalLink size={12} className="hidden sm:inline" />
 		</Link>
 	);
 };
