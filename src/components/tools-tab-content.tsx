@@ -57,11 +57,11 @@ const ToolsTabContent = ({ metadata }: ToolsContentProps) => {
       // Conditionally update the toast message and push to user
       const toastMessage = metadata.favorite
         ? `Removed ${capitalizeFirstLetter(
-          getDomainName(metadata.url),
-        )} from your favorites.`
+            getDomainName(metadata.url),
+          )} from your favorites.`
         : `Added ${capitalizeFirstLetter(
-          getDomainName(metadata.url),
-        )} to your favorites.`;
+            getDomainName(metadata.url),
+          )} to your favorites.`;
       toastSuccess(toastMessage);
     } catch (error) {
       console.error("Error toggling favorite:", error);

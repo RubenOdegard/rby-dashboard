@@ -1,9 +1,7 @@
 "use server";
 
 import { db } from "@/db/db";
-import { SelectUrl } from "@/db/schema";
-import { InsertUrl, urls } from "@/drizzle/schema";
-import { Urls } from "@/types/urls";
+import { InsertUrl, SelectUrl, urls } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -12,7 +10,7 @@ export async function insertURLToDatabase({
   url,
   category,
   favorite,
-}: InsertUrl): Promise<InsertUrl> {
+}: InsertUrl) {
   try {
     await db
       .insert(urls)
@@ -66,7 +64,7 @@ export async function updateFavoriteStatusInDatabase(
 }
 
 // Function to fetch all URLs from database
-export async function fetchURLDataFromDatabase(): Promise<SelectUrl[]> {
+export async function fetchURLDataFromDatabase() {
   const result: SelectUrl[] = await db.select().from(urls).all();
   return result;
 }
