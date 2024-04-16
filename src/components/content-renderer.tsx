@@ -1,13 +1,20 @@
 "use client";
 
+// Hooks
+import { useEffect, useState } from "react";
+import { useStore } from "@/stores/store";
+
+// Actions
+import { fetchURLDataFromDatabase } from "@/actions/collection-url-action";
 import {
     fetchProjectURLsFromDatabase,
     fetchProjectDataFromDatabase,
 } from "@/actions/project-actions";
-import { fetchURLDataFromDatabase } from "@/actions/collection-url-action";
-import { useEffect, useState } from "react";
-import { useStore } from "@/stores/store";
+
+// Utils
 import { capitalizeFirstLetter } from "@/lib/utils";
+
+// UI Components
 import { MainTabs } from "./main-tabs";
 import { Loader } from "./loader";
 
@@ -61,7 +68,6 @@ const ContentRenderer = () => {
 
     // Fetch metadata from each url from the database, set global variables with the data returned
     const fetchMetadata = async () => {
-        // Early escape. Dont fetch medata if there is no urls
         if (!urls || urls.length === 0) {
             setIsLoading(false);
             return;
@@ -91,13 +97,13 @@ const ContentRenderer = () => {
 
         const metadata = await Promise.all(promises);
         const filteredMetadata = metadata.filter((item) => item !== null);
-        setToolsMetadata(filteredMetadata);
-
         const categories = Array.from(
             new Set(
                 filteredMetadata.map((item) => capitalizeFirstLetter(item.category)),
             ),
         );
+
+        setToolsMetadata(filteredMetadata);
         setToolCategories(categories);
         setIsMetaDataLoading(false);
     };

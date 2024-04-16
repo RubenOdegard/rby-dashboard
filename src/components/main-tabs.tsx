@@ -1,22 +1,24 @@
+
+// Hooks
+import { useStore } from "@/stores/store";
+import { useEffect } from "react";
+
+// UI Ccomponents
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useStore } from "@/stores/store";
-import { useEffect } from "react";
-import AddUrlForm from "./add-url-form";
-import ToolsTabContent from "./tools-tab-content";
-import ProjectsTabContent from "./projects-tab-content";
-import { ViewSelection } from "./view-selection";
-import AddProjectForm from "./add-project-form";
-import { SelectProject } from "@/db/schema";
+import { ViewSelection } from "@/components/view-selection";
+import ToolsTabContent from "@/components/tools-tab-content";
+import ProjectsTabContent from "@/components/projects-tab-content";
+import AddUrlForm from "@/components/add-url-form";
+import AddProjectForm from "@/components/add-project-form";
+
+// Types
 import { Projects } from "@/types/types";
 
-interface MainTabsProps {
-    toolCategories: string[];
-    projects: Projects[];
-}
 
-export function MainTabs({ toolCategories, projects }: MainTabsProps) {
+export function MainTabs({ toolCategories, projects }: { toolCategories: string[]; projects: Projects[] }) {
+
     const {
         selectedCategory,
         setSelectedCategory,
@@ -27,7 +29,7 @@ export function MainTabs({ toolCategories, projects }: MainTabsProps) {
         toolsMetadata,
     } = useStore();
 
-    // Load the selected category and project from local storage
+    // Load the selected category, project and the selected tab from local storage
     useEffect(() => {
         const storedCategory = localStorage.getItem("selectedCategory");
         if (storedCategory) {
@@ -56,11 +58,13 @@ export function MainTabs({ toolCategories, projects }: MainTabsProps) {
         localStorage.setItem("selectedCategory", category);
     };
 
+    // Push the selected project to local storage so it persists on refresh
     const handleProjectChange = (project: string) => {
         setSelectedProject(project);
         localStorage.setItem("selectedProject", project);
     };
 
+    // Push the selected tab to local storage so it persists on refresh
     const handleTabChange = (tab: string) => {
         setSelectedTab(tab);
         localStorage.setItem("selectedTab", tab);

@@ -1,19 +1,29 @@
 "use client";
+
+// Hooks
 import { useStore } from "@/stores/store";
-import { EyeIcon, GithubIcon, LinkIcon, SaveIcon } from "lucide-react";
+import { useState } from "react";
+
+// Actions
+import { updateProjectInDatabaseGithub, updateProjectInDatabaseLivePreview } from "@/actions/project-actions";
+
+// Icons
+import { EyeIcon, GithubIcon, SaveIcon } from "lucide-react";
+
+// UI Components
 import { Separator } from "./ui/separator";
-import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import TextProjectSubtitle from "./text-project-subtitle";
-
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { capitalizeFirstLetter, getDomainName, toastError, toastSuccess } from "@/lib/utils";
-import { Checkbox } from "./ui/checkbox";
 import TextProjectTitle from "./text-project-title";
-import { addProjectUrlToDatabase, updateProjectInDatabaseGithub, updateProjectInDatabaseLivePreview } from "@/actions/project-actions";
+import { ProjectURLForm } from "./project-url-form";
+
+// Utils
 import { z } from "zod";
-import { Projects, Urls } from "@/types/types";
+import { toastError, toastSuccess } from "@/lib/utils";
+
+// Types
+import { Projects, } from "@/types/types";
 
 const ProjectsTabContent = () => {
     // Get selected category from Zustand store
@@ -46,7 +56,7 @@ const ProjectsTabContent = () => {
                         />
                     </div>
                     <div className="flex flex-col gap-2 rounded-lg border p-6 md:p-16">
-                        <EditProjectForm />
+                        <ProjectURLForm />
                     </div>
                 </div>
             ))}
@@ -142,147 +152,3 @@ const LinkDisplay = ({
     );
 };
 
-const EditProjectForm = () => {
-    const { urls, selectedProject, projects, projectUrls } = useStore();
-    const [edit, setEdit] = useState<boolean>(false);
-    const [selectedUrl, setSelectedUrl] = useState<string>("")
-    const [showFullURL, setShowFullURL] = useState<boolean>(false);
-    const [filterUnusedURLs, setFilterUnusedURLs] = useState<any[]>([]);
-
-    const handleCategoryChange = (value: string) => {
-        setSelectedUrl(value);
-        setEdit(true);
-    };
-
-    const handleShowFullURL = () => {
-        setShowFullURL((showFullURL) => !showFullURL);
-    };
-
-
-    const handleAddUrl = async (value: string) => {
-        const UrlSchema = z.string().url();
-        try {
-            const validatedUrl = UrlSchema.parse(value);
-            const url = urls.find((url) => url.url === validatedUrl);
-
-            if (url) {
-                const projectId = projects.find((project) => project.project === selectedProject)?.id;
-
-                if (projectId) {
-                    await addProjectUrlToDatabase(projectId, url.id);
-                    setFilterUnusedURLs(filterUnusedURLs.filter((url) => url.url !== validatedUrl))
-                    setSelectedUrl("");
-                    setEdit(false);
-                    toastSuccess("URL added successfully");
-                } else {
-                    toastError("Error adding URL: Project ID not found");
-                }
-            } else {
-                toastError("URL does not exist in the database");
-            }
-        } catch (error) {
-            toastError("Error adding URL: " + error);
-        }
-    };
-
-
-
-    const handleFilterUrls = () => {
-        // Get the ID of the selected project
-        const projectId = projects.find((project) => project.project === selectedProject)?.id;
-
-        // Get the IDs of URLs associated with the selected project
-        const projectUrlIds = projectUrls
-            .filter((url) => url.projectId === projectId)
-            .map((url) => url.urlId);
-
-        // Filter out the URLs that are already connected to the selected project
-        const unusedURLs = urls.filter((url) => !projectUrlIds.includes(url.id));
-
-        // Set the filtered URLs in the state
-        setFilterUnusedURLs(unusedURLs);
-    }
-
-    // Rerender the component and filter the URLs when anything acociated with project change or urls change
-    useEffect(() => {
-        handleFilterUrls();
-    }, [selectedProject, projectUrls, urls, selectedUrl]);
-
-
-
-    // TODO: Add show full url to locale storage to persist on refresh
-
-
-    return (
-        <div className="flex w-full flex-col">
-            <div className="flex flex-col items-start sm:flex-row sm:items-center">
-                <div className="flex items-center gap-2 pr-4">
-                    <LinkIcon size={18} />
-                    <TextProjectSubtitle title="Add a new link" />
-                </div>
-                <div className="mt-1.5 flex items-center gap-2 sm:mt-0 sm:border-l sm:pl-4">
-                    <Checkbox
-                        id="showFullURL"
-                        checked={showFullURL}
-                        onCheckedChange={handleShowFullURL}
-                        className={`form-checkbox h-4 w-4`}
-                    />
-                    <label
-                        htmlFor="newCategoryCheckbox"
-                        className={
-                            showFullURL
-                                ? "text-sm text-yellow-400"
-                                : "" + "select-none text-sm text-muted-foreground/70"
-                        }
-                    >
-                        Show full URL
-                    </label>
-
-                </div>
-            </div>
-            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:gap-4">
-                <Select onValueChange={handleCategoryChange} value={selectedUrl}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Select a URL" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {filterUnusedURLs
-                            .sort((a, b) => a.category.localeCompare(b.category))
-                            .map((url, index) => {
-                                return (
-                                    <SelectItem key={index} value={url.url.toLowerCase()}>
-                                        {showFullURL ? (
-                                            <div>
-                                                {url.url}
-                                                <span className="hidden text-muted-foreground/70 sm:inline">
-                                                    {" "}
-                                                    - {url.category}
-                                                </span>
-                                            </div>
-                                        ) : (
-                                            <div>
-                                                {capitalizeFirstLetter(getDomainName(url.url))}
-                                                <span className="hidden text-muted-foreground/70 sm:inline">
-                                                    {" "}
-                                                    - {url.category}
-                                                </span>
-                                            </div>
-                                        )}
-                                    </SelectItem>
-                                );
-                            })}
-                    </SelectContent>
-                </Select>
-                <Button
-                    onClick={() => handleAddUrl(selectedUrl)}
-                    variant="outline"
-                    className="flex w-24 gap-2"
-                    disabled={!edit}
-                >
-                    Push
-                    <SaveIcon size={18} />
-                </Button>
-            </div>
-        </div >
-    );
-};

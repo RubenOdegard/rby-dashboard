@@ -3,13 +3,13 @@ export type Urls = {
     url: string;
     category: string;
     favorite: boolean;
-    createdAt: string;
+    createdAt?: string;
 };
 
 export type Projects = {
     id: number;
     project: string;
-    createdAt: string;
+    createdAt?: string;
     livePreview?: string | null;
     github?: string | null;
 };

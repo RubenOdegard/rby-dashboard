@@ -1,5 +1,7 @@
 "use server";
 
+// TODO: Add auth before each database call
+
 import { db } from "@/db/db";
 import {
     InsertProject,
@@ -8,9 +10,11 @@ import {
     projectUrls,
     SelectProject,
     SelectProjectUrl,
+    urls,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 // Function to fetch all projects from database
 export async function fetchProjectDataFromDatabase(): Promise<SelectProject[]> {
@@ -52,8 +56,6 @@ export async function insertProjectToDatabase({
                 livePreview: livePreview,
                 github: github,
             })
-            .returning();
-
         revalidatePath("/");
     } catch (error) {
         console.error("Error inserting project:", error);
@@ -71,7 +73,6 @@ export async function updateProjectInDatabaseGithub(
             .update(projects)
             .set({ github: value })
             .where(eq(projects.id, id))
-            .returning();
         revalidatePath("/");
     } catch (error) {
         console.error(`Error updating github link for ${id}:`, error);
@@ -89,7 +90,6 @@ export async function updateProjectInDatabaseLivePreview(
             .update(projects)
             .set({ livePreview: value })
             .where(eq(projects.id, id))
-            .returning();
         revalidatePath("/");
     } catch (error) {
         console.error(`Error updating live preview link for ${id}:`, error);
@@ -98,7 +98,7 @@ export async function updateProjectInDatabaseLivePreview(
 }
 
 
-
+// Function to insert data based on Urls interface from types
 export async function addProjectUrlToDatabase(
     projectId: number,
     urlId: number
@@ -110,8 +110,6 @@ export async function addProjectUrlToDatabase(
                 projectId: projectId,
                 urlId: urlId,
             })
-            .returning();
-
         revalidatePath("/");
     } catch (error) {
         console.error("Error inserting project:", error);
@@ -119,3 +117,12 @@ export async function addProjectUrlToDatabase(
     }
 }
 
+export async function fetchProjectURLs(projectId: number) {
+    const result = await db
+        .select()
+        .from(urls)
+        .fullJoin(projectUrls, eq(urls.id, projectUrls.urlId))
+        .where(eq(projectUrls.projectId, projectId))
+        .execute();
+    return result;
+}
