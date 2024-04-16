@@ -149,12 +149,36 @@ to more resources.
 
 ## Roadmap
 
-- [x] Authentication (Registration disabled by default for self hosting)
-- [x] Metadata preview from specified URL
-- [x] Favorites (Collections)
-- [ ] Notes on projects(?)
-- [ ] Feature flags(?)
-- [ ] Thumbnail images on projects
+**APP**
+- [x] **Basic UI Structure**
+- [ ] **CI/CD Linting and Formatting with Github Actions**
+- [x] **Authentication w/Kinde** (Registration disabled by default for self hosting)
+- [x] **Setup Database Schema** (Local and Production)
+- [x] **Local Database** (persistent local database is created and automaticly started in developer environment)
+- [x] **Production Database** (Turso)
+- [x] **API Route:** Fetch Metadata by URL
+- [x] **Server Actions** (CRUD actions against database)
+- [ ] **Protect API routes and Server Actions with Authentication**
+- [ ] **Custom Login Page** w/Kinde components
+
+**Collections**
+- [ ] **Predefined collections;** "All" and "Favorites"
+- [x] **Add a URL to a collection** (existing or new category)
+- [x] **Add a URL to Favorites** (predefined collection)
+- [x] **Delete a URL from a collection**
+- [x] **Preview metadata from a specified url**
+- [x] **Fetch metadata from a specified url**
+- [x] **Collapsed/Extended view option in Collections tab**
+
+**Projects**
+- [x] **Add a Project:** Name (required), Github (optional) and Live Demo (optional)
+- [x] **Edit a Project's Options** (Name, Github, Live Demo)
+- [x] **Filter and render URL's from Collections that is not tied to a Project
+- [x] **Add a URL from a Collection to a Project
+- [ ] **Delete a URL from a Project**
+- [ ] **Add notes to a Project**
+- [ ] **Fetch README.md file from the specified Github Repo in a Project** (automatically)
+
 
 See the
 [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a
