@@ -37,8 +37,8 @@ next-env.d.ts
 
 # local dev database
 *.sqlite
-dd-local.db
-dd-local.db-shm
-dd-local.db-wal
+local.db
+local.db-shm
+local.db-wal
 
 
