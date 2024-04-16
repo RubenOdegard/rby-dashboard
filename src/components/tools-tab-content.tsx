@@ -2,7 +2,8 @@
 
 // Hooks
 import { useStore } from "@/stores/store";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import autoAnimate from '@formkit/auto-animate'
 
 // Actions
 import {
@@ -124,8 +125,15 @@ const ToolsExpandedView = ({
     const handleImageLeave = () => {
         setHoveredImageId(null);
     };
+
+    // Animations
+    const parent = useRef(null)
+    useEffect(() => {
+        parent.current && autoAnimate(parent.current)
+    }, [parent])
+
     return (
-        <div className="-mt-8 grid grid-cols-1 gap-x-8 md:grid-cols-2">
+        <ul ref={parent} className="-mt-8 grid grid-cols-1 gap-x-8 md:grid-cols-2">
             {filteredMetadata.map((metadataItem) => (
                 <div key={metadataItem.id} className="mt-8 flex flex-col border-t">
                     <div className="mt-6 flex items-center justify-between">
@@ -153,7 +161,7 @@ const ToolsExpandedView = ({
                     <TextDescription description={metadataItem.description} />
                 </div>
             ))}
-        </div>
+        </ul>
     );
 };
 
@@ -172,8 +180,14 @@ const ToolsCollapsedView = ({
         setHoveredImageId(null);
     };
 
+    // Animations
+    const parent = useRef(null)
+    useEffect(() => {
+        parent.current && autoAnimate(parent.current)
+    }, [parent])
+
     return (
-        <div className="-mt-8">
+        <ul ref={parent} className="-mt-8">
             {filteredMetadata.map((metadataItem) => (
                 <div
                     key={metadataItem.id}
@@ -208,6 +222,6 @@ const ToolsCollapsedView = ({
                     </div>
                 </div>
             ))}
-        </div>
+        </ul>
     );
 };
