@@ -1,14 +1,18 @@
 "use server";
 
-// TODO: Add auth before each database call
-
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/db";
 import { eq } from "drizzle-orm";
 import { urls } from "@/db/schema";
 
+const { isAuthenticated } = getKindeServerSession();
+
 // Function to test database with sample data
 export async function insertSampleData() {
+    if (!(await isAuthenticated())) {
+        throw new Error("Not authenticated");
+    }
     try {
         await db
             .insert(urls)
@@ -27,6 +31,9 @@ export async function insertSampleData() {
 
 // Function to test deleting data from database
 export async function deleteSampleData(idToDelete: number) {
+    if (!(await isAuthenticated())) {
+        throw new Error("Not authenticated");
+    }
     try {
         await db.delete(urls).where(eq(urls.id, idToDelete)).returning({
             idToDelete: urls.id,
