@@ -2,7 +2,7 @@
 
 import { db } from "@/db/db";
 import { InsertUrl, SelectUrl, urls } from "@/db/schema";
-import { checkUserAuthOrThrowError, createTimeout } from "@/lib/utils";
+import { checkUserAuthOrThrowError, createTimeout } from "@/lib/actions-utils";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
