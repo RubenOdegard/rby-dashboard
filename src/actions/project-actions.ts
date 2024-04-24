@@ -1,6 +1,5 @@
 "use server";
 
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { revalidatePath } from "next/cache";
 
 import { db } from "@/db/db";
@@ -13,61 +12,78 @@ import {
 	urls,
 } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { checkUserAuthOrThrowError, createTimeout } from "@/lib/utils";
 
 // FIX: When adding to the database, check if it exists first
 
-const { isAuthenticated } = getKindeServerSession();
+// TODO: Add authorization to all actions
+// For this, each function either needs to use or insert a user id to the database together with the other data
 
-// Function to fetch all projects from database
 export async function fetchProjectDataFromDatabase(): Promise<SelectProject[]> {
-	if (!(await isAuthenticated())) {
-		throw new Error("Not authenticated");
+	try {
+		await checkUserAuthOrThrowError();
+		const result = await Promise.race([
+			db.select().from(projects).all(),
+			createTimeout(3000),
+		]);
+		// Might want to check if the result is actually the correct structure to not run into runtime errors on invalid structure
+		const typedResult = result as SelectProject[];
+		return typedResult;
+	} catch (error) {
+		console.error("Error fetching projects:", error);
+		throw error;
 	}
-	const result = await db.select().from(projects).all();
-	return result;
 }
 
-// Function to fetch all projects from database
 export async function fetchProjectURLsFromDatabase(): Promise<
 	SelectProjectUrl[]
 > {
-	if (!(await isAuthenticated())) {
-		throw new Error("Not authenticated");
+	try {
+		await checkUserAuthOrThrowError();
+		const result = await Promise.race([
+			db.select().from(projectUrls).all(),
+			createTimeout(3000),
+		]);
+		const typedResult = result as SelectProjectUrl[];
+		return typedResult;
+	} catch (error) {
+		console.error("Error fetching project URLs:", error);
+		throw error;
 	}
-	const result = await db.select().from(projectUrls).all();
-	return result;
 }
 
-// Function to fetch all urls based on project id
 export async function fetchURLDataFromProjectId(id: number) {
-	if (!(await isAuthenticated())) {
-		throw new Error("Not authenticated");
+	try {
+		await checkUserAuthOrThrowError();
+		const result = await Promise.race([
+			db.select().from(projectUrls).where(eq(projectUrls.projectId, id)).all(),
+			createTimeout(3000),
+		]);
+		const typedResult = result as SelectProjectUrl[];
+		return typedResult;
+	} catch (error) {
+		console.error("Error fetching project:", error);
+		throw error;
 	}
-	const result = await db
-		.select()
-		.from(projectUrls)
-		.where(eq(projectUrls.projectId, id))
-		.all();
-	return result;
 }
 
-// Function to insert data based on Urls interface from types
 export async function insertProjectToDatabase({
 	id,
 	project,
 	livePreview,
 	github,
 }: InsertProject) {
-	if (!(await isAuthenticated())) {
-		throw new Error("Not authenticated");
-	}
 	try {
-		await db.insert(projects).values({
-			id: id,
-			project: project,
-			livePreview: livePreview,
-			github: github,
-		});
+		await checkUserAuthOrThrowError();
+		await Promise.race([
+			db.insert(projects).values({
+				id: id,
+				project: project,
+				livePreview: livePreview,
+				github: github,
+			}),
+			createTimeout(3000),
+		]);
 		revalidatePath("/");
 	} catch (error) {
 		console.error("Error inserting project:", error);
@@ -75,94 +91,101 @@ export async function insertProjectToDatabase({
 	}
 }
 
-// Functiont o update the github link in the database based on project id
 export async function updateProjectInDatabaseGithub(
 	id: number,
 	value: string | undefined | null,
 ) {
-	if (!(await isAuthenticated())) {
-		throw new Error("Not authenticated");
-	}
 	try {
-		await db.update(projects).set({ github: value }).where(eq(projects.id, id));
+		await checkUserAuthOrThrowError();
+		await Promise.race([
+			db.update(projects).set({ github: value }).where(eq(projects.id, id)),
+			createTimeout(3000),
+		]);
 		revalidatePath("/");
 	} catch (error) {
 		console.error(`Error updating github link for ${id}:`, error);
 		throw error;
 	}
 }
-//
-// Functiont o update the github link in the database based on project id
+
 export async function updateProjectInDatabaseLivePreview(
 	id: number,
 	value: string | undefined | null,
 ) {
-	if (!(await isAuthenticated())) {
-		throw new Error("Not authenticated");
-	}
 	try {
-		await db
-			.update(projects)
-			.set({ livePreview: value })
-			.where(eq(projects.id, id));
+		await checkUserAuthOrThrowError();
+		await Promise.race([
+			db
+				.update(projects)
+				.set({ livePreview: value })
+				.where(eq(projects.id, id)),
+			createTimeout(3000),
+		]);
 		revalidatePath("/");
 	} catch (error) {
 		console.error(`Error updating live preview link for ${id}:`, error);
 	}
 }
 
-// Function to insert data based on Urls interface from types
 export async function addProjectUrlToDatabase(
 	projectId: number,
 	urlId: number,
 ) {
-	if (!(await isAuthenticated())) {
-		throw new Error("Not authenticated");
-	}
 	try {
-		await db.insert(projectUrls).values({
-			projectId: projectId,
-			urlId: urlId,
-		});
+		await checkUserAuthOrThrowError();
+		await Promise.race([
+			db.insert(projectUrls).values({
+				projectId: projectId,
+				urlId: urlId,
+			}),
+			createTimeout(3000),
+		]);
 		revalidatePath("/");
 	} catch (error) {
 		console.error("Error inserting project:", error);
 	}
 }
 
-// Function to fetch all urls based on project id
 export async function fetchProjectURLs(projectId: number) {
-	if (!(await isAuthenticated())) {
-		throw new Error("Not authenticated");
+	try {
+		await checkUserAuthOrThrowError();
+		const result = await Promise.race([
+			db
+				.select()
+				.from(urls)
+				.fullJoin(projectUrls, eq(urls.id, projectUrls.urlId))
+				.where(eq(projectUrls.projectId, projectId))
+				.execute(),
+			createTimeout(3000),
+		]);
+		return result;
+	} catch (error) {
+		console.error("Error fetching project URLs:", error);
+		throw error;
 	}
-	const result = await db
-		.select()
-		.from(urls)
-		.fullJoin(projectUrls, eq(urls.id, projectUrls.urlId))
-		.where(eq(projectUrls.projectId, projectId))
-		.execute();
-	return result;
 }
 
-// Function to delete a project_url from the database by url
 export async function deleteProjectUrlFromDatabaseByURL(
 	projectId: number,
 	urlID: number,
 ) {
-	if (!(await isAuthenticated())) {
-		throw new Error("Not authenticated");
-	}
 	try {
-		await db
-			.delete(projectUrls)
-			.where(
-				and(eq(projectUrls.projectId, projectId), eq(projectUrls.urlId, urlID)),
-			)
-			.execute();
+		await checkUserAuthOrThrowError();
+		await Promise.race([
+			db
+				.delete(projectUrls)
+				.where(
+					and(
+						eq(projectUrls.projectId, projectId),
+						eq(projectUrls.urlId, urlID),
+					),
+				)
+				.execute(),
+			createTimeout(3000),
+		]);
 		revalidatePath("/");
 	} catch (error) {
-		throw new Error(
-			`Error deleting project_url with projectId ${projectId} and url ${urlID}: ${error}`,
-		);
+		console.error("Error deleting project URL:", error);
+		throw error;
 	}
 }
