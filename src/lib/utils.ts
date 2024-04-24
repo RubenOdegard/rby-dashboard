@@ -1,8 +1,8 @@
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
 import moment from "moment";
 import { toast } from "sonner";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -39,25 +39,3 @@ export function getProjectIDFromURL(selectedProject: string, projects: any) {
 	)?.id;
 	return projectId;
 }
-
-// !!! Custom function to create a timeout promise, which will race against the database call !!!
-// !!! This serves as a way to cancel the database call if it takes too long. !!!
-export function createTimeout(duration: number) {
-	return new Promise((_, reject) => {
-		setTimeout(() => {
-			reject(new Error("Operation timed out"));
-		}, duration);
-	});
-}
-
-// !!! User auth needs to be checked before a database call !!!
-// !!! Additionally check if the users id === the user id on the selected row in a table !!!
-// !!! Users can only edit their own data. If this is not checked, a authenticated user can edit other users data !!!
-export const checkUserAuthOrThrowError = async () => {
-	const { isAuthenticated } = getKindeServerSession();
-	if (await isAuthenticated()) {
-		return true;
-	} else {
-		throw new Error("Not authenticated");
-	}
-};
