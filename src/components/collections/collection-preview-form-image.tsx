@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
 const CollectionPreviewFormImage = ({
 	loading,
@@ -10,12 +11,12 @@ const CollectionPreviewFormImage = ({
 	title?: string;
 	imageUrl?: string;
 	className?: string;
-	children?: React.ReactNode;
+	children?: ReactNode;
 }) => {
 	return (
 		<div>
 			{loading ? (
-				<div className="text-pretty mt-1 aspect-video w-full animate-pulse rounded bg-muted/30 font-semibold"></div>
+				<div className="text-pretty mt-1 aspect-video w-full animate-pulse rounded bg-muted/30 font-semibold" />
 			) : (
 				<>
 					<h3 className={cn("text-pretty font-semibold", className)}>

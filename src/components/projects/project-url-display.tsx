@@ -1,47 +1,58 @@
 "use client";
 
-// TODO: Sort imports
-
+import { deleteProjectUrlFromDatabaseByUrl, fetchProjectUrls } from "@/actions/project-actions";
 import {
-	deleteProjectUrlFromDatabaseByURL,
-	fetchProjectURLs,
-} from "@/actions/project-actions";
-import { getProjectIDFromURL, toastError, toastSuccess } from "@/lib/utils";
-import { useStore } from "@/stores/store";
-import { useEffect, useRef, useState } from "react";
-import autoAnimate from "@formkit/auto-animate";
-
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { SelectProjectUrl, SelectUrl } from "@/db/schema";
-import { FolderIcon, XIcon } from "lucide-react";
-import TextDomain from "../collections/text-domain";
+import type { SelectProjectUrl, SelectUrl } from "@/db/schema";
+import { getProjectIdFromUrl, toastError, toastSuccess } from "@/lib/utils";
+import { useStore } from "@/stores/store";
+import type { Metadata } from "@/types/metadata";
+import autoAnimate from "@formkit/auto-animate";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import { FolderIcon, InfoIcon, XIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import ImageWithLink from "../collections/image-with-link";
 import TextDescription from "../collections/text-description";
+import TextDomain from "../collections/text-domain";
 import TextTitle from "../collections/text-title";
-import { Metadata } from "@/types/metadata";
 
-interface FilteredProjectURLsType {
+interface FilteredProjectUrLsType {
 	urls: SelectUrl;
-	project_urls: SelectProjectUrl;
+	projectUrls: SelectProjectUrl;
 }
 
 interface MetadataModified extends Metadata {
 	urls: SelectUrl;
-	project_urls: SelectProjectUrl;
+	projectUrls: SelectProjectUrl;
 }
 
 const ProjectUrlDisplay = () => {
-	const {
-		urls,
-		selectedProject,
-		projects,
-		filterUnusedURLs,
-		setFilterUnusedURLs,
-	} = useStore();
-	const [filteredProjectURLs, setFilteredProjectURLs] =
-		useState<FilteredProjectURLsType[]>();
+	const { selectedProject, projects, filterUnusedUrls } = useStore();
+	const [filteredProjectUrLs, setFilteredProjectUrLs] = useState<FilteredProjectUrLsType[]>();
 	const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
 	const [metadata, setMetadata] = useState<MetadataModified[]>([]);
+	const { user } = useKindeBrowserClient();
+	const [open, setOpen] = useState(false);
+	const [dialogUrlState, setDialogUrlState] = useState<MetadataModified | null>(null);
+
+	const openDialog = (metadata: MetadataModified) => {
+		setDialogUrlState(metadata);
+		setOpen(true);
+	};
+
+	const handleClose = () => {
+		setOpen(false);
+	};
 
 	const handleImageHover = (id: number) => {
 		setHoveredImageId(id);
@@ -51,42 +62,40 @@ const ProjectUrlDisplay = () => {
 		setHoveredImageId(null);
 	};
 
-	const handleDeleteProjectUrl = async (project: string, urlID: number) => {
+	const handleDeleteProjectUrl = async (project: string, urlId: number) => {
+		// Check if user is logged in
+		if (!user) {
+			toastError("Error deleting url.");
+			return;
+		}
+
 		const projectId = projects.find((item) => item.project === project)?.id;
 
+		// Early return if we cant find the project
 		if (!projectId) {
 			toastError("Project not found");
 			return;
 		}
 
 		try {
-			await deleteProjectUrlFromDatabaseByURL(projectId, urlID);
-			// Find the corresponding URL in the global URLs list
-			const deletedUrl = urls.find((url) => url.id === urlID);
-
-			if (deletedUrl) {
-				const safeDeletedUrl = {
-					...deletedUrl,
-					createdAt: deletedUrl.createdAt || new Date().toString(),
-				};
-				setFilterUnusedURLs([...filterUnusedURLs, safeDeletedUrl]);
-			}
+			await deleteProjectUrlFromDatabaseByUrl(projectId, urlId);
+			// Remove the deleted URL from the local state
+			setFilteredProjectUrLs((prev) => (prev ? prev.filter((urlObject) => urlObject.urls.id !== urlId) : []));
+			setMetadata((prev) => (prev ? prev.filter((meta) => meta.urls.id !== urlId) : []));
 			toastSuccess("Successfully deleted URL from project");
 		} catch (error) {
-			toastError(`Error deleting ${urlID}: ${error}`);
+			toastError(`Error deleting ${urlId}: ${error}`);
 		}
 	};
 
 	const fetchMetadata = async () => {
-		if (!filteredProjectURLs || filteredProjectURLs.length === 0) {
+		if (!filteredProjectUrLs || filteredProjectUrLs.length === 0) {
 			return;
 		}
 
-		const promises = filteredProjectURLs.map(async (urlObject) => {
+		const promises = filteredProjectUrLs.map(async (urlObject) => {
 			try {
-				const response = await fetch(
-					`/api/fetchMetadata?url=${encodeURIComponent(urlObject.urls.url)}`,
-				);
+				const response = await fetch(`/api/fetchMetadata?url=${encodeURIComponent(urlObject.urls.url)}`);
 				if (!response.ok) {
 					throw new Error(`Failed to fetch metadata for ${urlObject.urls.url}`);
 				}
@@ -99,110 +108,132 @@ const ProjectUrlDisplay = () => {
 
 		const metadata = await Promise.all(promises);
 		const filteredMetadata = metadata.filter((item) => item !== null);
+		filteredMetadata.sort((a, b) => {
+			const categoryComparison = a.urls.category.localeCompare(b.urls.category);
+
+			if (categoryComparison !== 0) {
+				return categoryComparison;
+			}
+
+			return a.title.localeCompare(b.title);
+		});
 		setMetadata(filteredMetadata);
 	};
 
-	// Animations
 	const parent = useRef(null);
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <Animation library is not exhaustive>
 	useEffect(() => {
 		parent.current && autoAnimate(parent.current);
 	}, [parent]);
 
-	// Fetch metadata
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <Manual overwrite, useEffect has to be dependent on filterUnusedURLs to correctly handle component remount>
 	useEffect(() => {
 		try {
 			fetchMetadata();
 		} catch (error) {
 			throw new Error(`Error fetching metadata: ${error}`);
 		}
-	}, [filteredProjectURLs]);
+	}, [filteredProjectUrLs]);
 
-	// Fetch filtered URLs
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <Manual overwrite, useEffect has to be dependent on filterUnusedURLs to correctly handle component remount>
 	useEffect(() => {
 		const fetchFilteredUrls = async () => {
-			const projectId = await getProjectIDFromURL(selectedProject, projects);
+			const projectId = await getProjectIdFromUrl(selectedProject, projects);
 			if (projectId) {
-				const fetchedUrls = await fetchProjectURLs(projectId);
+				const fetchedUrls = await fetchProjectUrls(projectId);
 				if (fetchedUrls) {
-					const filteredUrls = fetchedUrls.filter(
-						(item) => item.urls !== null,
-					) as FilteredProjectURLsType[];
-					setFilteredProjectURLs(filteredUrls);
+					const filteredUrls = fetchedUrls.filter((item) => item.urls !== null) as FilteredProjectUrLsType[];
+					setFilteredProjectUrLs(filteredUrls);
 				}
 			} else {
 				toastError("Error when loading URL's");
 			}
 		};
 		fetchFilteredUrls();
-	}, [filterUnusedURLs]);
-
-	// TODO: Sort the metadata alphabetically by category into a new variablem, and render JSX from that.
+	}, [filterUnusedUrls]);
 
 	return (
 		<div>
-			<div className="mt-6 flex flex-col gap-2 overflow-scroll  border border-red-500 p-4">
-				<span className="text-red-500">Debug</span>
-				{JSON.stringify(filteredProjectURLs)}
-			</div>
-			{filteredProjectURLs && (
-				<div className="mt-6 border p-4">
-					{filteredProjectURLs.map((item, index) => {
-						return (
-							<div key={index} className="flex justify-between">
-								<Button
-									variant="outline"
-									size="manual"
-									className="size-6 p-1"
-									onClick={() =>
-										handleDeleteProjectUrl(selectedProject, item.urls.id)
-									}
-								>
-									<XIcon size={12} className="" />
-								</Button>
-								<p>{item.urls.url}</p>
-								<p>Category: {item.urls.category}</p>
-							</div>
-						);
-					})}
+			{/* Information text if there is no urls tied to a project. */}
+			{filteredProjectUrLs && filteredProjectUrLs.length < 1 && (
+				<div className="flex items-center gap-2">
+					<InfoIcon size={20} className="text-yellow-400" />
+					<p>No URLs have been added to this project.</p>
 				</div>
 			)}
-			<ul
-				ref={parent}
-				className="-mt-8 grid grid-cols-1 gap-x-8 md:grid-cols-2"
-			>
-				{metadata.map((item: MetadataModified) => (
-					<div key={item.urls.id} className="mt-8 flex flex-col border-t">
-						<div className="mt-6 flex items-center justify-between">
-							<TextDomain
-								domain={item.domain}
-								isHovered={hoveredImageId === item.urls.id}
-								handleMouseEnter={() => handleImageHover(item.urls.id)}
-								handleMouseLeave={handleImageLeave}
-							/>
-						</div>
-						<ImageWithLink
-							imageUrl={item.imageUrl}
-							domain={item.domain}
-							id={item.urls.id}
-							handleImageHover={handleImageHover}
-							handleImageLeave={handleImageLeave}
-							className="order-first mt-4"
-						/>
-
-						<TextTitle title={item.title} className="mt-4" />
-						<TextDescription description={item.description} />
-						<div className="flex">
-							<div className="mt-4 flex text-yellow-200">
-								{item.urls.category && (
-									<span className="flex items-center gap-1.5">
-										<FolderIcon className="size-4" /> {item.urls.category}
-									</span>
+			<div className="flex w-full flex-col">
+				<ul ref={parent} className="-mt-8 grid grid-cols-1 gap-x-8 md:grid-cols-2">
+					{metadata.map((item: MetadataModified, index) => (
+						<li key={item.urls.id} className="mt-8 flex flex-col border-t pt-4">
+							<div className="mt-6 flex items-center justify-between">
+								<TextDomain
+									domain={item.domain}
+									isHovered={hoveredImageId === item.urls.id}
+									handleMouseEnter={() => handleImageHover(item.urls.id)}
+									handleMouseLeave={handleImageLeave}
+								/>
+								<Button
+									variant="destructive"
+									size="manual"
+									className=""
+									onClick={() => openDialog(metadata[index])}
+								>
+									<XIcon size={12} className="size-5 p-1" />
+								</Button>
+								{open && (
+									<AlertDialog open={open} onOpenChange={handleClose}>
+										<AlertDialogTrigger className="hidden" />
+										<AlertDialogContent>
+											<AlertDialogHeader>
+												<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+												<AlertDialogDescription>
+													This will remove the URL{" "}
+													<span className="italic text-foreground">
+														({dialogUrlState?.domain})
+													</span>{" "}
+													from <strong>{selectedProject}.</strong>
+												</AlertDialogDescription>
+											</AlertDialogHeader>
+											<AlertDialogFooter>
+												<AlertDialogCancel>Cancel</AlertDialogCancel>
+												<AlertDialogAction
+													onClick={() =>
+														handleDeleteProjectUrl(selectedProject, dialogUrlState!.urls.id)
+													}
+												>
+													Delete URL
+												</AlertDialogAction>
+											</AlertDialogFooter>
+										</AlertDialogContent>
+									</AlertDialog>
 								)}
 							</div>
-						</div>
-					</div>
-				))}
-			</ul>
+							{/* WARN: Temp value false is added */}
+							<ImageWithLink
+								imageUrl={item.imageUrl}
+								domain={item.domain}
+								id={item.urls.id}
+								favorite={false}
+								handleImageHover={handleImageHover}
+								handleImageLeave={handleImageLeave}
+								className="order-first mt-4"
+							/>
+
+							<TextTitle title={item.title} className="mt-4" />
+							<TextDescription description={item.description} />
+							<div className="flex">
+								<div className="mt-4 flex text-yellow-200">
+									{item.urls.category && (
+										<span className="flex items-center gap-1.5">
+											<FolderIcon className="size-4" /> {item.urls.category}
+										</span>
+									)}
+								</div>
+							</div>
+						</li>
+					))}
+				</ul>
+			</div>
 		</div>
 	);
 };

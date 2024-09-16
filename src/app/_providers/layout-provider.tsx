@@ -1,25 +1,22 @@
-"use client"
+"use client";
 
+import { ThemeProvider } from "@/app/_providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { useStore } from "@/stores/store";
-import { ThemeProvider } from "@/app/_providers/theme-provider";
+import type { ReactNode } from "react";
 
 const LayoutProvider = ({
-    children,
+	children,
 }: Readonly<{
-    children: React.ReactNode;
+	children: ReactNode;
 }>) => {
-    useStore()
-    return (
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            disableTransitionOnChange
-        >
-            {children}
-            <Toaster />
-        </ThemeProvider>
-    );
+	useStore();
+	return (
+		<ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange={true}>
+			{children}
+			<Toaster />
+		</ThemeProvider>
+	);
 };
 
 export default LayoutProvider;

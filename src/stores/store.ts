@@ -1,7 +1,7 @@
+import type { SelectUrl } from "@/db/schema";
+import type { Metadata } from "@/types/metadata";
+import type { ProjectUrls, Projects, Urls } from "@/types/types";
 import { create } from "zustand";
-import { Metadata } from "@/types/metadata";
-import { Urls, Projects, ProjectUrls } from "@/types/types";
-import { SelectUrl } from "@/db/schema";
 
 export interface StoreState {
 	// Selected category type
@@ -16,13 +16,13 @@ export interface StoreState {
 	selectedTab: string;
 	setSelectedTab: (project: string) => void;
 
-	// Array of tools type
-	toolsMetadata: Metadata[];
-	setToolsMetadata: (metadata: Metadata[]) => void;
+	// Array of collections type
+	collectionsMetadata: Metadata[];
+	setCollectionsMetadata: (metadata: Metadata[]) => void;
 
-	// Set of categories for tools type
-	toolCategories: string[];
-	setToolCategories: (categories: string[]) => void;
+	// Set of categories for collections type
+	collectionCategories: string[];
+	setCollectionCategories: (categories: string[]) => void;
 
 	// View type
 	viewExpanded: boolean;
@@ -48,22 +48,18 @@ export interface StoreState {
 	toggleFavorite: (id: number, newFavoriteStatus: boolean) => void;
 
 	// FilteredUnusedURLs
-	filterUnusedURLs: SelectUrl[];
-	setFilterUnusedURLs: (filterUnusedURLs: SelectUrl[]) => void;
+	filterUnusedUrls: SelectUrl[];
+	setFilterUnusedUrls: (filterUnusedUrls: SelectUrl[]) => void;
 }
 
 export const useStore = create<StoreState>((set) => {
 	// Initialize viewExpanded from localStorage if available, or set to false
-	const viewExpandedFromLocalStorage =
-		typeof window !== "undefined" ? localStorage.getItem("viewExpanded") : null;
-	const initialViewExpanded = viewExpandedFromLocalStorage
-		? JSON.parse(viewExpandedFromLocalStorage)
-		: false;
+	const viewExpandedFromLocalStorage = typeof window !== "undefined" ? localStorage.getItem("viewExpanded") : null;
+	const initialViewExpanded = viewExpandedFromLocalStorage ? JSON.parse(viewExpandedFromLocalStorage) : false;
 
 	return {
 		selectedCategory: "all",
-		setSelectedCategory: (category) =>
-			set(() => ({ selectedCategory: category })),
+		setSelectedCategory: (category) => set(() => ({ selectedCategory: category })),
 
 		selectedProject: "",
 		setSelectedProject: (project) => set(() => ({ selectedProject: project })),
@@ -71,12 +67,11 @@ export const useStore = create<StoreState>((set) => {
 		selectedTab: "",
 		setSelectedTab: (tab) => set(() => ({ selectedTab: tab })),
 
-		toolsMetadata: [],
-		setToolsMetadata: (metadata) => set(() => ({ toolsMetadata: metadata })),
+		collectionsMetadata: [],
+		setCollectionsMetadata: (metadata) => set(() => ({ collectionsMetadata: metadata })),
 
-		toolCategories: [],
-		setToolCategories: (categories) =>
-			set(() => ({ toolCategories: categories })),
+		collectionCategories: [],
+		setCollectionCategories: (categories) => set(() => ({ collectionCategories: categories })),
 
 		viewExpanded: initialViewExpanded,
 		setViewExpanded: (view) => {
@@ -98,15 +93,12 @@ export const useStore = create<StoreState>((set) => {
 		projectUrls: [],
 		setProjectUrls: (projectUrls) => set(() => ({ projectUrls })),
 
-		filterUnusedURLs: [],
-		setFilterUnusedURLs: (filterUnusedURLs: SelectUrl[]) =>
-			set(() => ({ filterUnusedURLs })),
+		filterUnusedUrls: [],
+		setFilterUnusedUrls: (filterUnusedUrls: SelectUrl[]) => set(() => ({ filterUnusedUrls })),
 
 		toggleFavorite: (id: number, newFavoriteStatus: boolean) =>
 			set((state) => ({
-				urls: state.urls.map((url) =>
-					url.id === id ? { ...url, favorite: newFavoriteStatus } : url,
-				),
+				urls: state.urls.map((url) => (url.id === id ? { ...url, favorite: newFavoriteStatus } : url)),
 			})),
 	};
 });

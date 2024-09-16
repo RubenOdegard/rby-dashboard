@@ -2,6 +2,16 @@
 
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
+export const { getUser } = getKindeServerSession();
+
+export const getUserOrThrowError = async () => {
+	const user = await getUser();
+	if (!user) {
+		throw new Error("User not found");
+	}
+	return user;
+};
+
 // !!! Custom function to create a timeout promise, which will race against the database call !!!
 // !!! This serves as a way to cancel the database call if it takes too long. !!!
 export async function createTimeout(duration: number) {
@@ -19,7 +29,6 @@ export const checkUserAuthOrThrowError = async () => {
 	const { isAuthenticated } = getKindeServerSession();
 	if (await isAuthenticated()) {
 		return true;
-	} else {
-		throw new Error("Not authenticated");
 	}
+	throw new Error("Not authenticated");
 };

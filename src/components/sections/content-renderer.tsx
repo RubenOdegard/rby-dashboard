@@ -1,71 +1,57 @@
 "use client";
 
-// Hooks
-import { useEffect, useState } from "react";
-import { useStore } from "@/stores/store";
-
-// Actions
-import { fetchURLDataFromDatabase } from "@/actions/collection-url-action";
-import {
-	fetchProjectURLsFromDatabase,
-	fetchProjectDataFromDatabase,
-} from "@/actions/project-actions";
-
-// Utils
-import { capitalizeFirstLetter } from "@/lib/utils";
-
-// UI Components
-import { MainTabs } from "@/components/sections/main-tabs";
+import { fetchUrlDataFromDatabase } from "@/actions/collection-url-action";
+import { fetchProjectDataFromDatabase, fetchProjectUrlsFromDatabase } from "@/actions/project-actions";
 import { Loader } from "@/components/loader";
+import { MainTabs } from "@/components/sections/main-tabs";
+import { capitalizeFirstLetter } from "@/lib/utils";
+import { useStore } from "@/stores/store";
+import { useEffect, useState } from "react";
 
 const ContentRenderer = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isMedataLoading, setIsMetaDataLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const [_error, setError] = useState<string | null>(null);
 	const {
 		urls,
 		setUrls,
-		toolCategories,
-		setToolsMetadata,
-		setToolCategories,
+		collectionCategories,
+		setCollectionsMetadata,
+		setCollectionCategories,
 		setFailedUrls,
 		projects,
 		setProjects,
 		setProjectUrls,
 	} = useStore();
 
-	// Fetch initial data from database
 	const fetchAllData = async () => {
 		try {
 			setIsLoading(true);
 			setError(null);
 
-			// Fetch urls
-			const urlsData = await fetchURLDataFromDatabase();
+			const urlsData = await fetchUrlDataFromDatabase();
 			if (urlsData) {
 				setUrls(urlsData);
 			}
 
-			// Fetch projects
 			const projectsData = await fetchProjectDataFromDatabase();
 			if (projectsData) {
 				setProjects(projectsData);
 			}
 
-			// Fetch project-urls
-			const projectUrlsData = await fetchProjectURLsFromDatabase();
+			const projectUrlsData = await fetchProjectUrlsFromDatabase();
 			if (projectUrlsData) {
 				setProjectUrls(projectUrlsData);
 			}
 		} catch (error) {
 			setIsLoading(false);
 			setError("Failed to fetch data. Please try again later.");
+			console.error(error);
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
-	// Fetch metadata from each url from the database, set global variables with the data returned
 	const fetchMetadata = async () => {
 		if (!urls || urls.length === 0) {
 			setIsLoading(false);
@@ -77,9 +63,7 @@ const ContentRenderer = () => {
 
 		const promises = urls.map(async (urlObject) => {
 			try {
-				const response = await fetch(
-					`/api/fetchMetadata?url=${encodeURIComponent(urlObject.url)}`,
-				);
+				const response = await fetch(`/api/fetchMetadata?url=${encodeURIComponent(urlObject.url)}`);
 				if (!response.ok) {
 					throw new Error(`Failed to fetch metadata for ${urlObject.url}`);
 				}
@@ -88,6 +72,7 @@ const ContentRenderer = () => {
 			} catch (error) {
 				setIsMetaDataLoading(false);
 				setError("Failed to fetch metadata. Please try again later.");
+				console.error(error);
 				const prevUrls = useStore.getState().failedUrls;
 				setFailedUrls([...prevUrls, urlObject.url]);
 				return null;
@@ -96,21 +81,19 @@ const ContentRenderer = () => {
 
 		const metadata = await Promise.all(promises);
 		const filteredMetadata = metadata.filter((item) => item !== null);
-		const categories = Array.from(
-			new Set(
-				filteredMetadata.map((item) => capitalizeFirstLetter(item.category)),
-			),
-		);
+		const categories = Array.from(new Set(filteredMetadata.map((item) => capitalizeFirstLetter(item.category))));
 
-		setToolsMetadata(filteredMetadata);
-		setToolCategories(categories);
+		setCollectionsMetadata(filteredMetadata);
+		setCollectionCategories(categories);
 		setIsMetaDataLoading(false);
 	};
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		fetchAllData();
 	}, []);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (urls.length > 0) {
 			fetchMetadata();
@@ -121,9 +104,9 @@ const ContentRenderer = () => {
 		return <Loader />;
 		// } else if (error !== null) {
 		// 	return <p className="mt-2 text-red-500">{error}</p>;
-	} else {
-		return <MainTabs toolCategories={toolCategories} projects={projects} />;
 	}
+
+	return <MainTabs collectionCategories={collectionCategories} projects={projects} />;
 };
 
 export default ContentRenderer;

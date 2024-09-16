@@ -1,49 +1,51 @@
-import { NextRequest, NextResponse } from "next/server";
-import cheerio from "cheerio";
+import { type NextRequest, NextResponse } from "next/server";
+import { parse } from "node-html-parser";
+import iconv from "iconv-lite";
 
-// export const dynamic = "force-dynamic";
-
+// biome-ignore lint/style/useNamingConvention: <Nextjs route naming convention>
 export async function GET(request: NextRequest) {
 	const searchParams = request.nextUrl.searchParams;
 	const url = searchParams.get("url");
 
-	// Check if URL is provided
 	if (!url) {
-		return NextResponse.error();
+		return NextResponse.json({ error: "URL parameter is required" }, { status: 400 });
 	}
 
 	try {
 		const response = await fetch(url);
-		const html = await response.text();
-		const $ = cheerio.load(html);
 
-		// Get title from metadata (use first title tag to not fetch WCAG titles for svgs, learned the hard way.)
-		let title = $("title:first").text() || "";
-
-		// Get description from metadata
-		let description = $('meta[name="description"]').attr("content");
-		// If no description, fetch from capitalized description tag
-		if (!description) {
-			description = $('meta[name="Description"]').attr("content");
-		}
-		// If still no description, use open graph description if available
-		if (!description) {
-			description = $('meta[property="og:description"]').attr("content");
+		if (!response.ok) {
+			throw new Error("Failed to fetch URL");
 		}
 
-		// Fetch image
-		let imageUrl = $('meta[property="og:image"]').attr("content") || "";
+		const contentType = response.headers.get("Content-Type") || "";
+		let encoding = "utf-8"; // Default encoding
 
-		// Fetch url
-		let domain = url;
+		// WARN: MAGIC
+		const match = contentType.match(/charset=([^;]+)/);
+		if (match?.[1]) {
+			encoding = match[1];
+		}
 
-		return new Response(
-			JSON.stringify({ title, description, imageUrl, domain }),
-			{
-				status: 200,
-				headers: { "Content-Type": "application/json" },
-			},
-		);
+		// Convert the content if it's not UTF-8
+		const htmlBuffer = await response.arrayBuffer();
+		const html = iconv.decode(Buffer.from(htmlBuffer), encoding);
+		const root = parse(html);
+
+		const title = root.querySelector("title")?.text || "";
+		const description =
+			root.querySelector('meta[name="description"]')?.getAttribute("content") ||
+			root.querySelector('meta[name="Description"]')?.getAttribute("content") ||
+			root.querySelector('meta[property="og:description"]')?.getAttribute("content") ||
+			"";
+
+		const imageUrl = root.querySelector('meta[property="og:image"]')?.getAttribute("content") || "";
+		const domain = url;
+
+		return new Response(JSON.stringify({ title, description, imageUrl, domain }), {
+			status: 200,
+			headers: { "Content-Type": "application/json" },
+		});
 	} catch (error) {
 		console.error("Error fetching metadata:", error);
 		return NextResponse.error();

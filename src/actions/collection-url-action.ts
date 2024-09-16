@@ -1,23 +1,25 @@
 "use server";
 
 import { db } from "@/db/db";
-import { InsertUrl, SelectUrl, urls } from "@/db/schema";
-import { checkUserAuthOrThrowError, createTimeout } from "@/lib/actions-utils";
-import { eq } from "drizzle-orm";
+import { type InsertUrl, type SelectUrl, urls } from "@/db/schema";
+import { checkUserAuthOrThrowError, createTimeout, getUserOrThrowError } from "@/lib/actions-utils";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-// FIX: When adding to the database, check if it exists first
-//
-// TODO: Add authorization to all actions
-// For this, each function either needs to use or insert a user id to the database together with the other data
+export async function insertUrlToDatabase({ url, category, favorite }: InsertUrl) {
+	const checkIfUrlExists = await db
+		.select()
+		.from(urls)
+		.where(and(eq(urls.url, url), eq(urls.owner, (await getUserOrThrowError()).id)))
+		.all();
 
-export async function insertURLToDatabase({
-	url,
-	category,
-	favorite,
-}: InsertUrl) {
+	if (checkIfUrlExists.length > 0) {
+		throw new Error(`URL ${url} already exists in the database.`);
+	}
+
 	try {
 		await checkUserAuthOrThrowError();
+		const user = await getUserOrThrowError();
 		await Promise.race([
 			db
 				.insert(urls)
@@ -25,6 +27,7 @@ export async function insertURLToDatabase({
 					url: url,
 					category: category,
 					favorite: favorite,
+					owner: user.id,
 				})
 				.returning(),
 			createTimeout(3000),
@@ -35,24 +38,23 @@ export async function insertURLToDatabase({
 	}
 }
 
-export async function deleteURLFromDatabaseByID(id: number) {
+export async function deleteUrlFromDatabaseById(id: number) {
 	try {
 		await checkUserAuthOrThrowError();
-		await Promise.race([
-			db.delete(urls).where(eq(urls.id, id)),
-			createTimeout(3000),
-		]);
+		const user = await getUserOrThrowError();
+		await Promise.race([db.delete(urls).where(and(eq(urls.id, id), eq(urls.owner, user.id))), createTimeout(3000)]);
 		revalidatePath("/");
 	} catch (error) {
 		throw new Error(`Error deleting URL data with ID ${id}: ${error}`);
 	}
 }
 
-export async function deleteURLFromDatabaseByURL(url: string) {
+export async function deleteUrlFromDatabaseByUrl(url: string) {
 	try {
 		await checkUserAuthOrThrowError();
+		const user = await getUserOrThrowError();
 		await Promise.race([
-			db.delete(urls).where(eq(urls.url, url)),
+			db.delete(urls).where(and(eq(urls.url, url), eq(urls.owner, user.id))),
 			createTimeout(3000),
 		]);
 		revalidatePath("/");
@@ -61,14 +63,15 @@ export async function deleteURLFromDatabaseByURL(url: string) {
 	}
 }
 
-export async function updateFavoriteStatusInDatabase(
-	id: number,
-	favorite: boolean,
-) {
+export async function updateFavoriteStatusInDatabase(id: number, favorite: boolean) {
 	try {
 		await checkUserAuthOrThrowError();
+		const user = await getUserOrThrowError();
 		await Promise.race([
-			db.update(urls).set({ favorite: favorite }).where(eq(urls.id, id)),
+			db
+				.update(urls)
+				.set({ favorite: favorite })
+				.where(and(eq(urls.id, id), eq(urls.owner, user.id))),
 			createTimeout(3000),
 		]);
 		revalidatePath("/");
@@ -77,14 +80,17 @@ export async function updateFavoriteStatusInDatabase(
 	}
 }
 
-export async function fetchURLDataFromDatabase() {
+export async function fetchUrlDataFromDatabase() {
 	try {
 		await checkUserAuthOrThrowError();
+		const user = await getUserOrThrowError();
 		const result = await Promise.race([
-			db.select().from(urls).all(),
-			createTimeout(3000),
+			db.select().from(urls).where(eq(urls.owner, user.id)).all(),
+			createTimeout(20000),
 		]);
 		const typedResult = result as SelectUrl[];
 		return typedResult;
-	} catch (error) {}
+	} catch (error) {
+		throw new Error(`Error fetching URL data for user: ${error}`);
+	}
 }

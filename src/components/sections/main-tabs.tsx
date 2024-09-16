@@ -1,36 +1,16 @@
-// Hooks
+import CollectionNewUrlForm from "@/components/collections/collection-new-url-form";
+import { CollectionViewSelection } from "@/components/collections/collection-view-selection";
+import ProjectNewForm from "@/components/projects/project-new-form";
+import CollectionsTabContent from "@/components/sections/collections-tab-content";
+import ProjectsTabContent from "@/components/sections/projects-tab-content";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useStore } from "@/stores/store";
+import type { Projects } from "@/types/types";
 import { useEffect } from "react";
 
-// UI Components
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-} from "@/components/ui/card";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CollectionViewSelection } from "@/components/collections/collection-view-selection";
-import ToolsTabContent from "@/components/sections/tools-tab-content";
-import ProjectsTabContent from "@/components/sections/projects-tab-content";
-import ProjectNewForm from "@/components/projects/project-new-form";
-import CollectionNewUrlForm from "@/components/collections/collection-new-url-form";
-
-// Types
-import { Projects } from "@/types/types";
-
-export function MainTabs({
-	toolCategories,
-	projects,
-}: { toolCategories: string[]; projects: Projects[] }) {
+export function MainTabs({ collectionCategories, projects }: { collectionCategories: string[]; projects: Projects[] }) {
 	const {
 		selectedCategory,
 		setSelectedCategory,
@@ -38,10 +18,12 @@ export function MainTabs({
 		setSelectedProject,
 		selectedTab,
 		setSelectedTab,
-		toolsMetadata,
+		collectionsMetadata,
 	} = useStore();
 
-	// Load the selected category, project and the selected tab from local storage
+	const sortedProjects = [...projects].sort((a, b) => a.project.localeCompare(b.project));
+	const sortedCollections = [...collectionCategories].sort((a, b) => a.localeCompare(b));
+
 	useEffect(() => {
 		const storedCategory = localStorage.getItem("selectedCategory");
 		if (storedCategory) {
@@ -60,43 +42,37 @@ export function MainTabs({
 		if (storedTab) {
 			setSelectedTab(storedTab);
 		} else {
-			setSelectedTab("tools");
+			setSelectedTab("collections");
 		}
-	}, []);
+	}, [setSelectedTab, setSelectedCategory, setSelectedProject]);
 
-	// Push the selected category to local storage so it persists on refresh
 	const handleCategoryChange = (category: string) => {
 		setSelectedCategory(category);
 		localStorage.setItem("selectedCategory", category);
 	};
 
-	// Push the selected project to local storage so it persists on refresh
 	const handleProjectChange = (project: string) => {
 		setSelectedProject(project);
 		localStorage.setItem("selectedProject", project);
 	};
 
-	// Push the selected tab to local storage so it persists on refresh
 	const handleTabChange = (tab: string) => {
 		setSelectedTab(tab);
 		localStorage.setItem("selectedTab", tab);
 	};
 
 	return (
-		<Tabs defaultValue={selectedTab} className="w-full max-w-6xl py-4">
+		<Tabs defaultValue={selectedTab} className="w-full max-w-6xl px-4 py-4 sm:px-8">
 			<TabsList className="mx-auto mb-8 grid w-full max-w-sm grid-cols-2">
-				<TabsTrigger value="tools" onClick={() => handleTabChange("tools")}>
+				<TabsTrigger value="collections" onClick={() => handleTabChange("collections")}>
 					Collections
 				</TabsTrigger>
-				<TabsTrigger
-					value="projects"
-					onClick={() => handleTabChange("projects")}
-				>
+				<TabsTrigger value="projects" onClick={() => handleTabChange("projects")}>
 					Projects
 				</TabsTrigger>
 			</TabsList>
-			<TabsContent value="tools">
-				<Card>
+			<TabsContent value="collections">
+				<Card className="pb-6">
 					<CardHeader>
 						<div className="grid grid-cols-12 items-center gap-2">
 							<div className="col-span-2 row-start-1 hidden sm:col-span-2 sm:flex md:col-start-1">
@@ -108,23 +84,20 @@ export function MainTabs({
 									onValueChange={handleCategoryChange}
 									value={selectedCategory}
 								>
-									<SelectTrigger className="mx-auto md:max-w-sm">
+									<SelectTrigger className="mx-auto capitalize md:max-w-sm">
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
 										<SelectItem value="all">All</SelectItem>
 										<SelectItem value="favorites">Favorites</SelectItem>
-										{toolCategories.map((category, index) => (
-											<SelectItem
-												key={index}
-												value={category}
-												className="capitalize"
-											>
+										<SelectSeparator />
+										{sortedCollections.map((category) => (
+											<SelectItem key={category} value={category} className="capitalize">
 												{category}
 												<span className="text-muted-foreground">
 													{" ("}
 													{
-														toolsMetadata.filter((metadata) => {
+														collectionsMetadata.filter((metadata) => {
 															const match =
 																metadata.category.toLowerCase() ===
 																category.toLowerCase();
@@ -144,29 +117,21 @@ export function MainTabs({
 						</div>
 					</CardHeader>
 					<CardContent className="-mb-4">
-						<ToolsTabContent metadata={toolsMetadata} />
+						<CollectionsTabContent metadata={collectionsMetadata} />
 					</CardContent>
-					<CardFooter></CardFooter>
 				</Card>
 			</TabsContent>
 			<TabsContent value="projects">
 				<Card>
 					<CardHeader>
 						<CardDescription className="flex flex-col gap-4 sm:flex-row">
-							<Select
-								onValueChange={handleProjectChange}
-								value={selectedProject}
-							>
-								<SelectTrigger className="w-full text-white">
+							<Select onValueChange={handleProjectChange} value={selectedProject}>
+								<SelectTrigger className="w-full capitalize text-white">
 									<SelectValue placeholder="Select a project" />
 								</SelectTrigger>
 								<SelectContent>
-									{projects.map((project: Projects) => (
-										<SelectItem
-											key={project.id}
-											value={project.project}
-											className="capitalize"
-										>
+									{sortedProjects.map((project: Projects) => (
+										<SelectItem key={project.id} value={project.project} className="capitalize">
 											{project.project}
 										</SelectItem>
 									))}
@@ -178,7 +143,6 @@ export function MainTabs({
 					<CardContent>
 						<ProjectsTabContent />
 					</CardContent>
-					<CardFooter></CardFooter>
 				</Card>
 			</TabsContent>
 		</Tabs>

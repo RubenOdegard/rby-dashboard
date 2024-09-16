@@ -1,16 +1,3 @@
-// Icons
-import { MoreHorizontal, StarIcon, Trash } from "lucide-react";
-
-// UI Components
-import {
-	Menubar,
-	MenubarContent,
-	MenubarItem,
-	MenubarMenu,
-	MenubarSeparator,
-	MenubarTrigger,
-} from "@/components/ui/menubar";
-
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -22,12 +9,17 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-// Utils
+import {
+	Menubar,
+	MenubarContent,
+	MenubarItem,
+	MenubarMenu,
+	MenubarSeparator,
+	MenubarTrigger,
+} from "@/components/ui/menubar";
 import { cn } from "@/lib/utils";
+import { MoreHorizontal, NotebookIcon, StarIcon, Trash } from "lucide-react";
 import { useState } from "react";
-
-// TODO: Add the possibility to add text to a "notes" section on url
 
 interface CollectionEditUrlButtonProps {
 	metadataItem: any;
@@ -35,11 +27,7 @@ interface CollectionEditUrlButtonProps {
 	onDelete: (metadataItem: any) => void;
 }
 
-const CollectionEditUrlButton = ({
-	metadataItem,
-	onToggleFavorite,
-	onDelete,
-}: CollectionEditUrlButtonProps) => {
+const CollectionEditUrlButton = ({ metadataItem, onToggleFavorite, onDelete }: CollectionEditUrlButtonProps) => {
 	const [open, setOpen] = useState(false);
 
 	const openDialog = () => {
@@ -57,44 +45,47 @@ const CollectionEditUrlButton = ({
 					<MoreHorizontal size={16} />
 				</MenubarTrigger>
 				<MenubarContent>
-					<MenubarItem onClick={() => onToggleFavorite(metadataItem)}>
+					<MenubarItem onClick={() => onToggleFavorite(metadataItem)} className="group">
 						<StarIcon
 							size={12}
-							className={cn("mr-2", metadataItem.favorite && "text-yellow-400")}
+							className={cn(
+								"mr-2 transition-colors group-hover:text-yellow-400 ",
+								metadataItem.favorite && "text-yellow-400",
+							)}
 						/>
-						{metadataItem.favorite
-							? "Remove from favorites"
-							: "Add to favorites"}
+						{metadataItem.favorite ? "Remove from favorites" : "Add to favorites"}
+					</MenubarItem>
+					<MenubarItem className="group line-through">
+						<NotebookIcon
+							size={12}
+							className={cn(
+								"mr-2  transition-colors group-hover:text-blue-400",
+								metadataItem.favorite && "",
+							)}
+						/>
+						Edit notes
 					</MenubarItem>
 					<MenubarSeparator />
-					<MenubarItem onClick={openDialog}>
-						<Trash size={12} className="mr-2 text-red-400 " />
+					<MenubarItem onClick={openDialog} className="group ">
+						<Trash size={12} className="mr-2 transition-colors group-hover:text-red-400 " />
 						Delete
 					</MenubarItem>
 				</MenubarContent>
 			</MenubarMenu>
 			{open && (
 				<AlertDialog open={open} onOpenChange={handleClose}>
-					<AlertDialogTrigger className="hidden">
-						<button />
-					</AlertDialogTrigger>
+					<AlertDialogTrigger className="hidden" />
 					<AlertDialogContent>
 						<AlertDialogHeader>
 							<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 							<AlertDialogDescription>
-								This action cannot be undone. This will permanently delete the
-								URL{" "}
-								<span className="italic text-foreground">
-									({metadataItem.url})
-								</span>{" "}
-								from the database.
+								This action cannot be undone. This will permanently delete the URL{" "}
+								<span className="italic text-foreground">({metadataItem.url})</span> from the database.
 							</AlertDialogDescription>
 						</AlertDialogHeader>
 						<AlertDialogFooter>
 							<AlertDialogCancel>Cancel</AlertDialogCancel>
-							<AlertDialogAction onClick={() => onDelete(metadataItem)}>
-								Delete URL
-							</AlertDialogAction>
+							<AlertDialogAction onClick={() => onDelete(metadataItem)}>Delete URL</AlertDialogAction>
 						</AlertDialogFooter>
 					</AlertDialogContent>
 				</AlertDialog>

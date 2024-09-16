@@ -1,29 +1,10 @@
-// Hooks
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { useStore } from "@/stores/store";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-// Actions
-import {
-	fetchURLDataFromDatabase,
-	insertURLToDatabase,
-} from "@/actions/collection-url-action";
-
-// Utils
-import { z } from "zod";
-import { generateRandomId, toastError, toastSuccess } from "@/lib/utils";
-
-// UI Components
+import { fetchUrlDataFromDatabase, insertUrlToDatabase } from "@/actions/collection-url-action";
+import CollectionPreviewFormImage from "@/components/collections/collection-preview-form-image";
+import CollectionPreviewFormUndertitle from "@/components/collections/collection-preview-form-undertitle";
+import CollectionPreviewFormUndertitleContent from "@/components/collections/collection-preview-form-undertitle-content";
+import DialogPlusButton from "@/components/dialog-plus-button";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Dialog,
 	DialogContent,
@@ -33,17 +14,18 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
-import DialogPlusButton from "@/components/dialog-plus-button";
-import CollectionPreviewFormUndertitleContent from "@/components/collections/collection-preview-form-undertitle-content";
-import CollectionPreviewFormImage from "@/components/collections/collection-preview-form-image";
-import CollectionPreviewFormUndertitle from "@/components/collections/collection-preview-form-undertitle";
-
-// Icons
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toastError, toastSuccess } from "@/lib/utils";
+import { useStore } from "@/stores/store";
+import type { UrlFormData } from "@/types/urlFormData";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { LinkIcon, RefreshCwIcon } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-// Types
-import { UrlFormData } from "@/types/urlFormData";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 
 const formSchema = z.object({
 	url: z.string().url({ message: "Invalid URL format" }),
@@ -60,18 +42,11 @@ const CollectionNewUrlForm = () => {
 		resolver: zodResolver(formSchema),
 	});
 
-	// Get global vars from store
-	const { urls, toolCategories, setUrls, setToolCategories } = useStore();
-
-	// Handle dialog state
+	const { urls, collectionCategories, setUrls, setCollectionCategories } = useStore();
 	const [dialogOpen, setDialogOpen] = useState(false);
-
-	// Initialise states for the form inputs
 	const [isNewCategory, setIsNewCategory] = useState(false);
 	const [newCategory, setNewCategory] = useState("");
 	const [selectedCategory, setSelectedCategory] = useState("");
-
-	// Initialise states for the preview
 	const [previewVisible, setPreviewVisible] = useState(false);
 	const [previewError, setPreviewError] = useState<string | null>(null);
 	const [previewLoading, setPreviewLoading] = useState(false);
@@ -81,6 +56,9 @@ const CollectionNewUrlForm = () => {
 		imageUrl: string;
 		description: string;
 	}>({ url: "", title: "", imageUrl: "", description: "" });
+	const { user } = useKindeBrowserClient();
+
+	const sortedCategories = [...collectionCategories].sort((a, b) => a.localeCompare(b));
 
 	const handleCheckboxChange = () => {
 		setIsNewCategory((prev) => !prev);
@@ -103,6 +81,7 @@ const CollectionNewUrlForm = () => {
 		setSelectedCategory("");
 		setPreviewUrl({ url: "", title: "", imageUrl: "", description: "" });
 		setPreviewError(null);
+		setPreviewVisible(false);
 		reset();
 	};
 
@@ -133,7 +112,6 @@ const CollectionNewUrlForm = () => {
 		setPreviewLoading(true);
 		const urlInput = document.getElementById("url") as HTMLInputElement;
 
-		// if urlInput doesnt exsists, as null or "" or starts with https://
 		if (!urlInput.value.startsWith("https://")) {
 			setPreviewVisible(false);
 			setPreviewError("Please enter a valid URL to fetch a preview.");
@@ -151,51 +129,40 @@ const CollectionNewUrlForm = () => {
 	const handleAddUrl = async (data: UrlFormData) => {
 		const category = isNewCategory ? newCategory : selectedCategory;
 
-		// Validate the input fields
 		formSchema.parse(data);
 
-		// Handle duplicate URLs
 		if (urls.some((url) => url.url === data.url)) {
-			alert("URL already exists in the list.");
+			toastError("URL already exists in Collections.");
 			return;
 		}
-		// Handle empty category
 		if (category === "" || undefined) {
-			alert("Please select or input a new category.");
+			toastError("Please select or input a new category.");
 			return;
 		}
-		// Add URL to database
+
+		if (!user) {
+			throw new Error("User not found");
+		}
 		try {
-			const id = generateRandomId();
-			await insertURLToDatabase({
-				id: id,
+			await insertUrlToDatabase({
 				url: data.url,
 				category: category,
 				favorite: false,
+				owner: user.id,
 			});
-			setUrls([
-				...urls,
-				{
-					id: id,
-					url: data.url,
-					category: category,
-					favorite: false,
-				},
-			]);
+			setUrls(await fetchUrlDataFromDatabase());
 			toastSuccess(`Successfully added ${data.url}`);
 		} catch (error) {
-			toastError(`Error adding ${data.url}`);
+			toastError(`Error adding ${data.url}: ${error}`);
 			return;
 		}
 		if (isNewCategory) {
-			setToolCategories([...toolCategories, newCategory]);
+			setCollectionCategories([...collectionCategories, newCategory]);
 		}
 		handleReset();
-		fetchURLDataFromDatabase();
 		setDialogOpen(false);
 	};
 
-	// Fetch preview metadata
 	const handleFetchPreviewMetadata = async () => {
 		setPreviewLoading(true);
 		const urlInput = document.getElementById("url") as HTMLInputElement;
@@ -206,9 +173,7 @@ const CollectionNewUrlForm = () => {
 
 		const url = urlInput.value;
 		try {
-			const response = await fetch(
-				`/api/fetchMetadata?url=${encodeURIComponent(url)}`,
-			);
+			const response = await fetch(`/api/fetchMetadata?url=${encodeURIComponent(url)}`);
 			if (!response.ok) {
 				throw new Error(`Failed to fetch metadata for ${url}`);
 			}
@@ -227,28 +192,26 @@ const CollectionNewUrlForm = () => {
 
 	return (
 		<Dialog open={dialogOpen} onOpenChange={handleDialogChange}>
-			<DialogTrigger asChild>
-				<DialogPlusButton />
+			<DialogTrigger asChild={true}>
+				<DialogPlusButton icon={false}>
+					<span className="mr-2 inline sm:hidden">
+						Add a new <strong>Collection Item</strong>
+					</span>
+				</DialogPlusButton>
 			</DialogTrigger>
 			<DialogContent className="max-h-screen overflow-y-scroll">
 				<DialogHeader>
 					<DialogTitle>
 						<div className="flex flex-col gap-0.5 text-2xl">
-							<div>Add a new URL</div>
+							<div>Add a new url to Collections</div>
 						</div>
 					</DialogTitle>
 					<DialogDescription>
-						<form
-							onSubmit={handleSubmit(handleAddUrl)}
-							className="flex flex-col space-y-6 border-t"
-						>
+						<form onSubmit={handleSubmit(handleAddUrl)} className="flex flex-col space-y-6 border-t">
 							<div className="mt-1 flex flex-col gap-1">
-								<label
-									htmlFor="url"
-									className="mb-1 mt-4 flex items-center gap-1.5 text-base font-semibold text-white"
-								>
-									<LinkIcon size={18} className="rounded-sm text-yellow-400" />
-									URL
+								<label htmlFor="url" className="mb-1 mt-4 flex items-center gap-1.5 text-white">
+									<LinkIcon size={14} className="rounded-sm text-yellow-400" />
+									Link
 								</label>
 								<Input
 									type="text"
@@ -258,11 +221,7 @@ const CollectionNewUrlForm = () => {
 									className=""
 								/>
 
-								{errors.url && (
-									<p className="mt-1 text-left text-red-500">
-										{errors.url.message}
-									</p>
-								)}
+								{errors.url && <p className="mt-1 text-left text-red-500">{errors.url.message}</p>}
 							</div>
 							<div className="flex flex-col">
 								<div className="mb-3 ml-1 flex items-center space-x-2">
@@ -270,15 +229,14 @@ const CollectionNewUrlForm = () => {
 										id="newCategoryCheckbox"
 										checked={isNewCategory}
 										onCheckedChange={handleCheckboxChange}
-										className={`form-checkbox h-5 w-5`}
+										className={"form-checkbox h-4 w-4"}
 									/>
 									<label
 										htmlFor="newCategoryCheckbox"
 										className={
 											isNewCategory
 												? "text-yellow-400"
-												: "" +
-													"select-none text-sm text-foreground/70 hover:cursor-pointer"
+												: "" + "select-none text-sm text-foreground/70 hover:cursor-pointer"
 										}
 									>
 										New Category
@@ -304,7 +262,7 @@ const CollectionNewUrlForm = () => {
 											<SelectValue placeholder="Select a category" />
 										</SelectTrigger>
 										<SelectContent>
-											{toolCategories.map((category) => (
+											{sortedCategories.map((category) => (
 												<SelectItem key={category} value={category}>
 													{category}
 												</SelectItem>
@@ -322,11 +280,7 @@ const CollectionNewUrlForm = () => {
 
 				<DialogFooter className="flex w-full flex-col sm:flex-col">
 					<div className="order-1 flex w-full gap-4">
-						<Button
-							variant={"outline"}
-							onClick={() => handlePreview()}
-							className="w-full"
-						>
+						<Button variant={"outline"} onClick={() => handlePreview()} className="w-full">
 							{previewVisible ? "Hide Preview" : "Show Preview"}
 						</Button>
 						<Button
@@ -335,10 +289,7 @@ const CollectionNewUrlForm = () => {
 							className="group w-12"
 							disabled={!previewVisible}
 						>
-							<RefreshCwIcon
-								size={14}
-								className={previewLoading ? "animate-spin" : ""}
-							/>
+							<RefreshCwIcon size={14} className={previewLoading ? "animate-spin" : ""} />
 						</Button>
 					</div>
 					{previewError && previewError.length > 0 && (
@@ -349,9 +300,7 @@ const CollectionNewUrlForm = () => {
 					{previewVisible && (
 						<div className="order-2 mt-12 flex flex-col gap-4 border-t pt-4">
 							<div className="-mt-[28px] flex justify-center">
-								<span className="bg-gray-950 px-4 text-sm text-yellow-400">
-									Preview
-								</span>
+								<span className="bg-gray-950 px-4 text-sm font-semibold text-yellow-400">Preview</span>
 							</div>
 							<div>
 								<CollectionPreviewFormUndertitle text="Title" />
@@ -366,12 +315,12 @@ const CollectionNewUrlForm = () => {
 									loading={previewLoading}
 									title={previewUrl.title}
 									imageUrl={previewUrl.imageUrl}
-								></CollectionPreviewFormImage>
+								/>
 							</div>
 							<div>
 								<CollectionPreviewFormUndertitle text="Description" />
 								<CollectionPreviewFormUndertitleContent
-									title={previewUrl.title}
+									title={previewUrl.description}
 									loading={previewLoading}
 								/>
 							</div>

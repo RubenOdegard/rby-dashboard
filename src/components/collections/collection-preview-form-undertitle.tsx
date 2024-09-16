@@ -1,5 +1,5 @@
 const CollectionPreviewFormUndertitle = (text: any) => {
-	return <span className="text-xs text-yellow-400">{text.text}</span>;
+	return <span className="text-xs font-semibold text-yellow-400">{text.text}</span>;
 };
 
 export default CollectionPreviewFormUndertitle;

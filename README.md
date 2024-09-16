@@ -65,7 +65,7 @@
 - [Drizzle (ORM)](link_to_drizzle)
 - [Zod (Validation)](link_to_zod)
 - [Zustand (State Management)](link_to_zustand)
-- [Cheerio (HTML Parser)](link_to_zustand)
+- [Node HTML Parser](https://www.npmjs.com/package/node-html-parser)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -151,24 +151,26 @@ to more resources.
 
 **App**
 - [x] **Basic UI Structure**
-- [ ] **CI/CD:** Linting and Formatting with Github Actions
+- [ ] **CI/CD:** Linting and Formatting with Github Actions _(can also be ran locally in dev)_
 - [x] **Authentication w/Kinde** (Registration disabled by default for self hosting)
 - [x] **Setup Database Schema** (Local and Production)
 - [x] **Local Database** (persistent local database is created and automaticly started in developer environment)
 - [x] **Production Database** (Turso)
 - [x] **API Route:** Fetch Metadata by URL
 - [x] **Server Actions** (CRUD actions against database)
-- [ ] **Protect API routes and Server Actions with Authorization**
+- [x] **Protect API routes and Server Actions with Authorization**
+- [x] **Timeouts for database and API calls**
+- [ ] **Ratelimiting for database and API calls**
 - [ ] **Custom Login Page** 
 - [ ] **Custom 404 Page**
-- [ ] **Animations** (currently 1/3)
+- [x] **Animations** 
+- [x] **Confirmation dialogs on critical actions**
 
 **Collections**
 - [x] **Predefined collections;** "All" and "Favorites"
 - [x] **Add a URL to a collection** (existing or new category)
 - [x] **Add a URL to Favorites** (predefined collection)
 - [x] **Delete a URL from a collection**
-- [ ] **? Add Notes to a Collection Item ?**
 - [x] **Preview metadata from a specified url**
 - [x] **Fetch metadata from a specified url**
 - [x] **Collapsed/Extended view option in Collections tab**
@@ -177,10 +179,13 @@ to more resources.
 - [x] **Add a Project:** Name _(required)_, Github _(optional)_ and Live Demo _(optional)_
 - [x] **Edit a Project's Options** (Name, Github, Live Demo)
 - [x] **Add a URL from a Collection to a Project**
-- [ ] **Delete a URL from a Project**
+- [x] **Delete a URL from a Project**
+- [x] **Delete a Project**
+
+**Miscellaneous maybes**
+- [ ] **? Add Notes to a Collection Item ?**
 - [ ] **? Add Notes to a Project ?**
 - [ ] **Fetch and display the README.md from a optional Github Repo on a Project** (automatically)
-
 
 See the
 [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a

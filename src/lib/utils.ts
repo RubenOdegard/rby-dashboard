@@ -1,4 +1,3 @@
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { type ClassValue, clsx } from "clsx";
 import moment from "moment";
 import { toast } from "sonner";
@@ -33,9 +32,7 @@ export function toastError(string: string) {
 	});
 }
 
-export function getProjectIDFromURL(selectedProject: string, projects: any) {
-	const projectId = projects.find(
-		(project: any) => project.project === selectedProject,
-	)?.id;
+export function getProjectIdFromUrl(selectedProject: string, projects: any) {
+	const projectId = projects.find((project: any) => project.project === selectedProject)?.id;
 	return projectId;
 }

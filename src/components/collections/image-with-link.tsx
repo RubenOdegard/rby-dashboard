@@ -1,12 +1,14 @@
-import Link from "next/link";
-import Image from "next/image";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { StarIcon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 
 interface ImageWithLinkProps {
 	imageUrl?: string;
 	domain: string;
 	id: number;
+	favorite: boolean;
 	handleImageHover: (id: number) => void;
 	handleImageLeave: () => void;
 	className?: string;
@@ -16,6 +18,7 @@ const ImageWithLink = ({
 	imageUrl,
 	domain,
 	id,
+	favorite,
 	handleImageHover,
 	handleImageLeave,
 	className,
@@ -33,7 +36,18 @@ const ImageWithLink = ({
 	};
 
 	return (
-		<Link href={domain} target="_blank" passHref className={className}>
+		<Link
+			href={domain}
+			target="_blank"
+			passHref={true}
+			className={cn("relative", className)}
+			rel="noopener noreferrer"
+			aria-label={domain}
+		>
+			{favorite ? (
+				<StarIcon className="size-4 absolute right-5 top-5 z-40 fill-yellow-400 text-yellow-400 shadow-md" />
+			) : null}
+
 			<div
 				className={cn(
 					"relative aspect-video overflow-clip rounded-xl border shadow-lg transition-all duration-1000",
@@ -49,17 +63,12 @@ const ImageWithLink = ({
 						quality={30}
 						layout="fill"
 						objectFit="cover"
-						onError={(e) =>
-							((e.target as HTMLImageElement).src = "/placeholder-img.webp")
-						}
+						// biome-ignore lint/suspicious/noAssignInExpressions: <Rewrite this?>
+						onError={(e) => ((e.target as HTMLImageElement).src = "/placeholder-img.webp")}
 					/>
 				) : (
 					<div className="text-pretty flex aspect-video items-center justify-center text-xs">
-						{isHovered ? (
-							<p className="text-white">Open in a new tab</p>
-						) : (
-							<p>Image not found</p>
-						)}
+						{isHovered ? <p className="text-white">Open in a new tab</p> : <p>Image not found</p>}
 					</div>
 				)}
 				{isHovered && (

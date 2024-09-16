@@ -1,4 +1,4 @@
 export interface UrlFormData {
-  url: string;
-  category: string;
+	url: string;
+	category: string;
 }

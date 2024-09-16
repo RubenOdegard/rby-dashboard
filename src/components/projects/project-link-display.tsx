@@ -1,25 +1,11 @@
-// Hooks
-import { useState } from "react";
-
-// Actions
-import {
-	updateProjectInDatabaseGithub,
-	updateProjectInDatabaseLivePreview,
-} from "@/actions/project-actions";
-
-// Icons
-import { SaveIcon } from "lucide-react";
-
-// UI Components
+import { updateProjectInDatabaseGithub, updateProjectInDatabaseLivePreview } from "@/actions/project-actions";
+import ProjectTextSubtitle from "@/components/projects/project-text-subtitle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-// Utils
-import { z } from "zod";
 import { cn, toastError, toastSuccess } from "@/lib/utils";
-import ProjectTextSubtitle from "@/components/projects/project-text-subtitle";
-
-// FIX: Add error handling for URL validation, reset input to empty string if invalid
+import { SaveIcon } from "lucide-react";
+import { type ReactNode, useState } from "react";
+import { z } from "zod";
 
 const ProjectLinkDisplay = ({
 	icon,
@@ -28,7 +14,7 @@ const ProjectLinkDisplay = ({
 	id,
 	type,
 }: {
-	icon: React.ReactNode;
+	icon: ReactNode;
 	link: string | undefined | null;
 	title: string;
 	id: number;
@@ -36,15 +22,17 @@ const ProjectLinkDisplay = ({
 }) => {
 	const [edit, setEdit] = useState<boolean>(false);
 	const [updateLink, setUpdateLink] = useState<string | undefined | null>(link);
-	const [prevUpdateLink, setPrevUpdateLink] = useState<
-		string | undefined | null
-	>(link);
+	const [prevUpdateLink, setPrevUpdateLink] = useState<string | undefined | null>(link);
 
 	const handleUpdateLink = async (id: number) => {
 		const urlSchema = z.string().url();
+		if (!updateLink) {
+			setEdit(false);
+			return;
+		}
 		try {
+			urlSchema.parse(updateLink);
 			if (updateLink !== prevUpdateLink) {
-				urlSchema.parse(updateLink); // Validate URL using Zod
 				if (type === "github") {
 					await updateProjectInDatabaseGithub(id, updateLink);
 					toastSuccess("Github link updated successfully");
@@ -53,8 +41,9 @@ const ProjectLinkDisplay = ({
 					toastSuccess("Live Demo link updated successfully");
 				}
 			}
-		} catch (error: any) {
-			toastError("Error updating link: " + error?.message);
+		} catch (error) {
+			toastError(`Not a valid URL: ${error}`);
+			setUpdateLink(prevUpdateLink);
 		}
 		setPrevUpdateLink(updateLink);
 		setEdit(false);
@@ -73,16 +62,11 @@ const ProjectLinkDisplay = ({
 							value={updateLink || ""}
 							onChange={(e) => {
 								setUpdateLink(e.target.value);
-								// Check if the input is not empty to maintain edit state
 								if (e.target.value !== "") {
 									setEdit(true);
 								}
 							}}
-							className={cn(
-								edit && "border-yellow-400",
-								"mt-2",
-								"focus:border-none",
-							)}
+							className={cn(edit && "border-yellow-400", "mt-2", "focus:border-none")}
 						/>
 					) : (
 						<span className="mt-2 flex">
@@ -100,20 +84,12 @@ const ProjectLinkDisplay = ({
 			</div>
 			<div className="mt-2 flex place-self-start sm:mt-0 sm:place-self-end">
 				{edit ? (
-					<Button
-						onClick={() => handleUpdateLink(id)}
-						variant="outline"
-						className="flex w-24 gap-2"
-					>
+					<Button onClick={() => handleUpdateLink(id)} variant="outline" className="flex w-24 gap-2">
 						<SaveIcon className="size-4 md:size-5 text-yellow-400" />
 						Save
 					</Button>
 				) : (
-					<Button
-						onClick={() => setEdit(!edit)}
-						variant="outline"
-						className="flex w-24 gap-2"
-					>
+					<Button onClick={() => setEdit(!edit)} variant="outline" className="flex w-24 gap-2">
 						<SaveIcon className="size-4 md:size-5" />
 						Edit
 					</Button>
