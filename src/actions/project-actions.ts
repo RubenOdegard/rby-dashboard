@@ -8,8 +8,10 @@ import {
 	projectUrls,
 	projects,
 	urls,
+	SelectUrl,
 } from "@/db/schema";
 import { checkUserAuthOrThrowError, createTimeout, getUser, getUserOrThrowError } from "@/lib/actions-utils";
+import { ProjectUrlData } from "@/types/types";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -179,7 +181,8 @@ export async function fetchProjectUrls(projectId: number) {
 				.execute(),
 			createTimeout(3000),
 		]);
-		return result;
+
+		return result as ProjectUrlData[];
 	} catch (error) {
 		console.error("Error fetching project URLs:", error);
 		throw error;
