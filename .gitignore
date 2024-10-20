@@ -44,5 +44,8 @@ local.db-wal
 # migrations
 /migrations
 
+# db
+*.db*
+
 
 

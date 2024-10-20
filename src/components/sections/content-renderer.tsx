@@ -6,7 +6,8 @@ import { Loader } from "@/components/loader";
 import { MainTabs } from "@/components/sections/main-tabs";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { useStore } from "@/stores/store";
-import { useEffect, useState } from "react";
+import type { ProjectUrls } from "@/types/types";
+import { useCallback, useEffect, useState } from "react";
 
 const ContentRenderer = () => {
 	const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +25,7 @@ const ContentRenderer = () => {
 		setProjectUrls,
 	} = useStore();
 
-	const fetchAllData = async () => {
+	const fetchAllData = useCallback(async () => {
 		try {
 			setIsLoading(true);
 			setError(null);
@@ -41,7 +42,7 @@ const ContentRenderer = () => {
 
 			const projectUrlsData = await fetchProjectUrlsFromDatabase();
 			if (projectUrlsData) {
-				setProjectUrls(projectUrlsData);
+				setProjectUrls(projectUrlsData as ProjectUrls[]);
 			}
 		} catch (error) {
 			setIsLoading(false);
@@ -50,9 +51,9 @@ const ContentRenderer = () => {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [setUrls, setProjects, setProjectUrls]);
 
-	const fetchMetadata = async () => {
+	const fetchMetadata = useCallback(async () => {
 		if (!urls || urls.length === 0) {
 			setIsLoading(false);
 			return;
@@ -86,27 +87,28 @@ const ContentRenderer = () => {
 		setCollectionsMetadata(filteredMetadata);
 		setCollectionCategories(categories);
 		setIsMetaDataLoading(false);
-	};
+	}, [setCollectionsMetadata, setCollectionCategories, setFailedUrls, urls]);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		fetchAllData();
-	}, []);
+	}, [fetchAllData]);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (urls.length > 0) {
 			fetchMetadata();
 		}
-	}, [urls]);
+	}, [urls, fetchMetadata]);
 
 	if (isLoading || isMedataLoading) {
 		return <Loader />;
-		// } else if (error !== null) {
-		// 	return <p className="mt-2 text-red-500">{error}</p>;
 	}
 
-	return <MainTabs collectionCategories={collectionCategories} projects={projects} />;
+	return (
+		<>
+			{_error && <p className="mt-2 text-red-500">{_error}</p>}
+			<MainTabs collectionCategories={collectionCategories} projects={projects} />;
+		</>
+	);
 };
 
 export default ContentRenderer;

@@ -36,3 +36,23 @@ export function getProjectIdFromUrl(selectedProject: string, projects: any) {
 	const projectId = projects.find((project: any) => project.project === selectedProject)?.id;
 	return projectId;
 }
+
+export const getGithubUsername = (url: string) => {
+	if (!url.toLowerCase().includes("github.com")) {
+		return null;
+	}
+
+	try {
+		const parsedUrl = new URL(url);
+		const pathSegments = parsedUrl.pathname.split("/").filter(Boolean);
+
+		if (pathSegments.length === 1) {
+			return pathSegments[0];
+		}
+
+		return null;
+	} catch (error) {
+		console.error("Invalid URL:", url);
+		return null;
+	}
+};

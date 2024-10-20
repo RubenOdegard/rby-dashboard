@@ -1,6 +1,6 @@
+import iconv from "iconv-lite";
 import { type NextRequest, NextResponse } from "next/server";
 import { parse } from "node-html-parser";
-import iconv from "iconv-lite";
 
 // biome-ignore lint/style/useNamingConvention: <Nextjs route naming convention>
 export async function GET(request: NextRequest) {

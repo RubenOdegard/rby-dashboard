@@ -15,7 +15,7 @@ export const Header = () => {
 				<div className="z-40 flex w-full flex-col items-start justify-start md:flex-row">
 					<div className="flex w-full max-w-none items-center justify-between md:max-w-fit md:justify-start">
 						<div className="flex items-center gap-3">
-							<h1 className="text-xl font-semibold text-white">Developer Dashboard</h1>
+							<h1 className="text-xl font-semibold text-white">RBY Dashboard</h1>
 						</div>
 						<div className="flex md:hidden">
 							<LogoutLink className="z-40 text-muted-foreground/70 hover:text-yellow-400 md:flex">

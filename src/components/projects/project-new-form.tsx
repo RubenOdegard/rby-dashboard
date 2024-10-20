@@ -73,7 +73,7 @@ const ProjectNewForm = () => {
 					github: data.github || "",
 				},
 			]);
-
+			setSelectedProject(data.project);
 			toastSuccess(`Successfully added ${data.project}`);
 		} catch (error) {
 			toastError(`Error adding ${data.project}`);
@@ -100,7 +100,6 @@ const ProjectNewForm = () => {
 
 		try {
 			await deleteProjectFromDatabaseByName(selectedProject); // Try to delete from database
-			console.log("deleted from database", selectedProject);
 			setProjects(projects.filter((project) => project.project !== selectedProject)); // Delete from local state on success
 			setSelectedProject(projects[0]?.project || ""); // Reset selected project
 
@@ -140,7 +139,7 @@ const ProjectNewForm = () => {
 									<Input
 										type="text"
 										id="project"
-										placeholder="Developer Dashboard"
+										placeholder="RBY Dashboard"
 										{...register("project")}
 										className=""
 									/>

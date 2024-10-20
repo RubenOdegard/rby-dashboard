@@ -55,16 +55,6 @@ const CollectionEditUrlButton = ({ metadataItem, onToggleFavorite, onDelete }: C
 						/>
 						{metadataItem.favorite ? "Remove from favorites" : "Add to favorites"}
 					</MenubarItem>
-					<MenubarItem className="group line-through">
-						<NotebookIcon
-							size={12}
-							className={cn(
-								"mr-2  transition-colors group-hover:text-blue-400",
-								metadataItem.favorite && "",
-							)}
-						/>
-						Edit notes
-					</MenubarItem>
 					<MenubarSeparator />
 					<MenubarItem onClick={openDialog} className="group ">
 						<Trash size={12} className="mr-2 transition-colors group-hover:text-red-400 " />

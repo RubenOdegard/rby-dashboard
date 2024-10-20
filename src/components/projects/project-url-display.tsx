@@ -175,7 +175,7 @@ const ProjectUrlDisplay = () => {
 								<Button
 									variant="destructive"
 									size="manual"
-									className=""
+									className="flex items-center justify-center"
 									onClick={() => openDialog(metadata[index])}
 								>
 									<XIcon size={12} className="size-5 p-1" />

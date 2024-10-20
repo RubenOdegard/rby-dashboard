@@ -6,7 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { SelectProjectUrl, SelectUrl } from "@/db/schema";
-import { capitalizeFirstLetter, getDomainName, getProjectIdFromUrl, toastError, toastSuccess } from "@/lib/utils";
+import {
+	capitalizeFirstLetter,
+	getDomainName,
+	getGithubUsername,
+	getProjectIdFromUrl,
+	toastError,
+	toastSuccess,
+} from "@/lib/utils";
 import { useStore } from "@/stores/store";
 import { LinkIcon, SaveIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -139,6 +146,8 @@ export const ProjectUrlForm = () => {
 						{filterUnusedUrls
 							?.sort((a, b) => a.category.localeCompare(b.category))
 							.map((url: SelectUrl) => {
+								const githubUsername = getGithubUsername(url.url.toLowerCase());
+
 								return (
 									<SelectItem key={url.id} value={url.url.toLowerCase()}>
 										{showFullUrl ? (
@@ -148,6 +157,9 @@ export const ProjectUrlForm = () => {
 													{" "}
 													- {url.category}
 												</span>
+												{githubUsername && (
+													<span className="text-blue-500"> (Profile: {githubUsername})</span>
+												)}
 											</div>
 										) : (
 											<div>
@@ -156,6 +168,12 @@ export const ProjectUrlForm = () => {
 													{" "}
 													- {url.category}
 												</span>
+												{githubUsername && (
+													<span className="text-blue-500">
+														{" "}
+														(GitHub Profile: {githubUsername})
+													</span>
+												)}
 											</div>
 										)}
 									</SelectItem>

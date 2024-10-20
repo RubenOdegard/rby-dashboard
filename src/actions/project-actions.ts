@@ -19,9 +19,8 @@ export async function fetchProjectDataFromDatabase(): Promise<SelectProject[]> {
 		const user = await getUserOrThrowError();
 		const result = await Promise.race([
 			db.select().from(projects).where(eq(projects.owner, user?.id)).all(),
-			createTimeout(3000),
+			createTimeout(5000),
 		]);
-		// Might want to check if the result is actually the correct structure to not run into runtime errors on invalid structure
 		const typedResult = result as SelectProject[];
 		return typedResult;
 	} catch (error) {

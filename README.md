@@ -1,24 +1,15 @@
 <a name="readme-top"></a>
-
-<br />
-<div align="center">
-  <a href="https://github.com/rubenodegard">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-
-<h3 align="center">Developer Console</h3>
+<h3 align="center">RBY Dashboard</h3>
 
 <p align="center">
-        A self-hostable console to manage a collection development tools and miscellaneous urls.
-    <br />
-    <a href="https://github.com/rubenodegard/developer-console"><strong>Explore the docs »</strong></a>
+A self-hosted dashboard for managing a collection of development tools </br> and various URLs, either standalone or linked to projects.
     <br />
     <br />
-    <a href="demo.developer-console.udev.no">View Demo</a>
+    <a href="demo.developer-console.udev.no">View Demo (Requires login)</a>
     ·
-    <a href="https://github.com/rubenodegard/developer-console/issues">Report Bug</a>
+    <a href="https://github.com/rubenodegard/rby-dashboard/issues">Report Bug</a>
     ·
-    <a href="https://github.com/rubenodegard/developer-console/issues">Request Feature</a>
+    <a href="https://github.com/rubenodegard/rby-dashboard/issues">Request Feature</a>
   </p>
 </div>
 
@@ -50,7 +41,10 @@
 
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+![Alt text](https://s3-api.udev.no/public-images/developer-dashboard.png)
+
+
+**Video of usage coming soon**
 
 <!-- Content -->
 
@@ -151,7 +145,7 @@ to more resources.
 
 **App**
 - [x] **Basic UI Structure**
-- [ ] **CI/CD:** Linting and Formatting with Github Actions _(can also be ran locally in dev)_
+- [x] **CI/CD:** Linting and Formatting with Github Actions _(can also be ran locally in dev, npm run :ci:biome)_
 - [x] **Authentication w/Kinde** (Registration disabled by default for self hosting)
 - [x] **Setup Database Schema** (Local and Production)
 - [x] **Local Database** (persistent local database is created and automaticly started in developer environment)

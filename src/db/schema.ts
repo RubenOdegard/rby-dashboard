@@ -33,10 +33,3 @@ export const projectUrls = sqliteTable("project_urls", {
 
 export type InsertProjectUrl = typeof projectUrls.$inferInsert;
 export type SelectProjectUrl = typeof projectUrls.$inferSelect;
-
-// Command to generate a migration
-// npx drizzle-kit generate:sqlite
-//
-// Command to run migrations
-// npx drizzle-kit push:sqlite
-//
