@@ -49,7 +49,7 @@ TLDR: Specifically built without React Query to learn further state management a
 
 ## Video Demonstration
 
-<a href="https://s3-api.udev.no/public-videos/rby-dashboard-video.mp4">
+<a href="https://s3-api.udev.no/public-videos/rby-dashboard-video.mp4" target="_blank">
   <div style="position: relative; display: inline-block;">
     <img src="https://s3-api.udev.no/public-images/developer-dashboard.png" alt="RBY Dashboard Video" style="width: 100%; max-width: 100%;" />
     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1wbGF5Ij48cG9seWdvbiBwb2ludHM9IjYgMyAyMCAxMiA2IDIxIDYgMyIvPjwvc3ZnPg==" alt="Play Icon" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px;" />
