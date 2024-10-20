@@ -52,7 +52,7 @@ export const getGithubUsername = (url: string) => {
 
 		return null;
 	} catch (error) {
-		console.error("Invalid URL:", url);
+		console.error("Invalid URL:", url, error);
 		return null;
 	}
 };
