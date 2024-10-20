@@ -20,9 +20,12 @@ const DialogPlusButton = forwardRef<
 			{...props}
 		>
 			{children}
-			<PlusIcon className={icon ? "size-4 inline" : " size-4 hidden sm:inline"} />
+			<PlusIcon className={icon ? "size-4 inline" : "size-4 hidden sm:inline"} />
 		</Button>
 	);
 });
+
+// Set the display name for debugging purposes
+DialogPlusButton.displayName = "DialogPlusButton";
 
 export default DialogPlusButton;
