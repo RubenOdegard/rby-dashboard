@@ -106,7 +106,7 @@ const ContentRenderer = () => {
 	return (
 		<>
 			{_error && <p className="mt-2 text-red-500">{_error}</p>}
-			<MainTabs collectionCategories={collectionCategories} projects={projects} />;
+			<MainTabs collectionCategories={collectionCategories} projects={projects} />
 		</>
 	);
 };
