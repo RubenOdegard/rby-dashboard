@@ -8,10 +8,9 @@ import {
 	projectUrls,
 	projects,
 	urls,
-	SelectUrl,
 } from "@/db/schema";
 import { checkUserAuthOrThrowError, createTimeout, getUser, getUserOrThrowError } from "@/lib/actions-utils";
-import { ProjectUrlData } from "@/types/types";
+import type { ProjectUrlData } from "@/types/types";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 

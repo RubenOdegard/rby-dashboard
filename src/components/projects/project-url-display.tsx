@@ -17,6 +17,7 @@ import type { SelectProjectUrl, SelectUrl } from "@/db/schema";
 import { getProjectIdFromUrl, toastError, toastSuccess } from "@/lib/utils";
 import { useStore } from "@/stores/store";
 import type { Metadata } from "@/types/metadata";
+import type { ProjectUrlData } from "@/types/types";
 import autoAnimate from "@formkit/auto-animate";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { FolderIcon, InfoIcon, XIcon } from "lucide-react";
@@ -25,7 +26,6 @@ import ImageWithLink from "../collections/image-with-link";
 import TextDescription from "../collections/text-description";
 import TextDomain from "../collections/text-domain";
 import TextTitle from "../collections/text-title";
-import type { ProjectUrlData } from "@/types/types";
 
 interface FilteredProjectUrLsType {
 	urls: ProjectUrlData;
