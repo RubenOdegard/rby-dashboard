@@ -207,7 +207,16 @@ create a pull request. You can also simply open an issue with the tag
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Changelog
+#### v1.0.0 - Initial Release
+- Basic UI Structure
+- Authentication with Kinde
+- Local Database Support
+- Metadata Fetching
+
 <!-- LICENSE -->
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## License
 
