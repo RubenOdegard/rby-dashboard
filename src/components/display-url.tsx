@@ -51,6 +51,7 @@ const DisplayUrl = ({ urls }: FetchComponentProps) => {
 							imageUrl={urlObject.imageUrl}
 							domain={urlObject.domain}
 							id={urlObject.id}
+							favorite={urlObject.favorite}
 							handleImageHover={handleImageHover}
 							handleImageLeave={handleImageLeave}
 							className="order-first mt-4"

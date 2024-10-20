@@ -19,9 +19,9 @@ import { LinkIcon, SaveIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
-interface FilteredProjectUrLsType {
-	urls: SelectUrl;
-	projectUrls: SelectProjectUrl;
+interface FilteredProjectUrlsType {
+	urls: SelectUrl[];
+	projectUrls: SelectProjectUrl[];
 }
 
 export const ProjectUrlForm = () => {
@@ -29,10 +29,10 @@ export const ProjectUrlForm = () => {
 	const [edit, setEdit] = useState<boolean>(false);
 	const [selectedUrl, setSelectedUrl] = useState<string>("");
 	const [showFullUrl, setShowFullUrl] = useState<boolean>(false);
-	const [_filteredProjectUrLs, setFilteredProjectUrLs] = useState<FilteredProjectUrLsType[]>();
+	const [_filteredProjectUrLs, setFilteredProjectUrLs] = useState<FilteredProjectUrlsType>();
 
 	const handleShowFullUrl = () => {
-		setShowFullUrl((showFullUrl) => !showFullUrl);
+		setShowFullUrl((prev) => !prev);
 		localStorage.setItem("showFullUrl", (!showFullUrl).toString());
 	};
 
@@ -48,7 +48,11 @@ export const ProjectUrlForm = () => {
 
 				if (Array.isArray(fetchedUrls)) {
 					const filteredUrls = fetchedUrls.filter((item: SelectUrl) => item.url !== null);
-					setFilteredProjectUrLs(filteredUrls as FilteredProjectUrLsType[]);
+					const newFilteredProjectUrls: FilteredProjectUrlsType = {
+						urls: filteredUrls,
+						projectUrls: [],
+					};
+					setFilteredProjectUrLs(newFilteredProjectUrls);
 				}
 			}
 		} catch (error) {
@@ -100,7 +104,7 @@ export const ProjectUrlForm = () => {
 		setFilterUnusedUrls(unusedUrLs);
 	};
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <Needs a rewrite to remove biome-ignore and prevent infinite loop>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		handleFilterUrls();
 		const showFullUrlFromLocalStorage = localStorage.getItem("showFullUrl");

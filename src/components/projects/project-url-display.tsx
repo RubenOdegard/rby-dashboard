@@ -25,9 +25,10 @@ import ImageWithLink from "../collections/image-with-link";
 import TextDescription from "../collections/text-description";
 import TextDomain from "../collections/text-domain";
 import TextTitle from "../collections/text-title";
+import type { ProjectUrlData } from "@/types/types";
 
 interface FilteredProjectUrLsType {
-	urls: SelectUrl;
+	urls: ProjectUrlData;
 	projectUrls: SelectProjectUrl;
 }
 
@@ -38,7 +39,7 @@ interface MetadataModified extends Metadata {
 
 const ProjectUrlDisplay = () => {
 	const { selectedProject, projects, filterUnusedUrls } = useStore();
-	const [filteredProjectUrLs, setFilteredProjectUrLs] = useState<FilteredProjectUrLsType[]>();
+	const [filteredProjectUrLs, setFilteredProjectUrLs] = useState<FilteredProjectUrLsType[]>([]);
 	const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
 	const [metadata, setMetadata] = useState<MetadataModified[]>([]);
 	const { user } = useKindeBrowserClient();
@@ -63,7 +64,6 @@ const ProjectUrlDisplay = () => {
 	};
 
 	const handleDeleteProjectUrl = async (project: string, urlId: number) => {
-		// Check if user is logged in
 		if (!user) {
 			toastError("Error deleting url.");
 			return;
@@ -71,7 +71,6 @@ const ProjectUrlDisplay = () => {
 
 		const projectId = projects.find((item) => item.project === project)?.id;
 
-		// Early return if we cant find the project
 		if (!projectId) {
 			toastError("Project not found");
 			return;
@@ -79,7 +78,6 @@ const ProjectUrlDisplay = () => {
 
 		try {
 			await deleteProjectUrlFromDatabaseByUrl(projectId, urlId);
-			// Remove the deleted URL from the local state
 			setFilteredProjectUrLs((prev) => (prev ? prev.filter((urlObject) => urlObject.urls.id !== urlId) : []));
 			setMetadata((prev) => (prev ? prev.filter((meta) => meta.urls.id !== urlId) : []));
 			toastSuccess("Successfully deleted URL from project");
@@ -110,23 +108,21 @@ const ProjectUrlDisplay = () => {
 		const filteredMetadata = metadata.filter((item) => item !== null);
 		filteredMetadata.sort((a, b) => {
 			const categoryComparison = a.urls.category.localeCompare(b.urls.category);
-
 			if (categoryComparison !== 0) {
 				return categoryComparison;
 			}
-
 			return a.title.localeCompare(b.title);
 		});
 		setMetadata(filteredMetadata);
 	};
 
 	const parent = useRef(null);
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <Animation library is not exhaustive>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		parent.current && autoAnimate(parent.current);
 	}, [parent]);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <Manual overwrite, useEffect has to be dependent on filterUnusedURLs to correctly handle component remount>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		try {
 			fetchMetadata();
@@ -135,26 +131,32 @@ const ProjectUrlDisplay = () => {
 		}
 	}, [filteredProjectUrLs]);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <Manual overwrite, useEffect has to be dependent on filterUnusedURLs to correctly handle component remount>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		const fetchFilteredUrls = async () => {
 			const projectId = await getProjectIdFromUrl(selectedProject, projects);
 			if (projectId) {
-				const fetchedUrls = await fetchProjectUrls(projectId);
-				if (fetchedUrls) {
-					const filteredUrls = fetchedUrls.filter((item) => item.urls !== null) as FilteredProjectUrLsType[];
+				const fetchedUrls: ProjectUrlData[] = await fetchProjectUrls(projectId);
+				if (Array.isArray(fetchedUrls)) {
+					const filteredUrls = fetchedUrls.map((item) => ({
+						urls: item,
+						projectUrls: {
+							owner: "",
+							projectId: projectId,
+							urlId: item.id,
+						},
+					}));
 					setFilteredProjectUrLs(filteredUrls);
 				}
 			} else {
-				toastError("Error when loading URL's");
+				toastError("Error when loading URLs");
 			}
 		};
 		fetchFilteredUrls();
-	}, [filterUnusedUrls]);
+	}, [filterUnusedUrls, selectedProject, projects]);
 
 	return (
 		<div>
-			{/* Information text if there is no urls tied to a project. */}
 			{filteredProjectUrLs && filteredProjectUrLs.length < 1 && (
 				<div className="flex items-center gap-2">
 					<InfoIcon size={20} className="text-yellow-400" />
@@ -208,7 +210,6 @@ const ProjectUrlDisplay = () => {
 									</AlertDialog>
 								)}
 							</div>
-							{/* WARN: Temp value false is added */}
 							<ImageWithLink
 								imageUrl={item.imageUrl}
 								domain={item.domain}
@@ -218,7 +219,6 @@ const ProjectUrlDisplay = () => {
 								handleImageLeave={handleImageLeave}
 								className="order-first mt-4"
 							/>
-
 							<TextTitle title={item.title} className="mt-4" />
 							<TextDescription description={item.description} />
 							<div className="flex">
