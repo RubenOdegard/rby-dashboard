@@ -10,7 +10,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
 	title: "RBY Dashboard",
-	description: "A developer dashboard to manage your tools and dependencies.",
+	description:
+		"A self-hosted dashboard for managing a collection of development tools and various URLs, either standalone or linked to projects.",
 };
 
 export default function RootLayout({
