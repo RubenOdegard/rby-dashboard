@@ -18,7 +18,7 @@ import {
 	MenubarTrigger,
 } from "@/components/ui/menubar";
 import { cn } from "@/lib/utils";
-import { MoreHorizontal, NotebookIcon, StarIcon, Trash } from "lucide-react";
+import { MoreHorizontal, StarIcon, Trash } from "lucide-react";
 import { useState } from "react";
 
 interface CollectionEditUrlButtonProps {
