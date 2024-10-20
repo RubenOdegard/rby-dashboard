@@ -21,3 +21,13 @@ export type Urls = {
 	createdAt?: string;
 	favorite: boolean;
 };
+
+export type ProjectUrlData = {
+	id: number;
+	url: string;
+	category: string;
+	favorite: boolean;
+	createdAt: string;
+	owner: string;
+	projectId: number | null;
+};
