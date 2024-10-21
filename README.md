@@ -8,7 +8,7 @@
 A self-hosted dashboard for managing a collection of development tools and various URLs, either standalone or linked to projects.
     <br />
     <br />
-    <a href="demo.developer-console.udev.no">View Demo (Requires login)</a>
+    <a href="demo.developer-console.udev.no">View Demo (Requires login, locked temporarily)</a>
     ·
     <a href="https://github.com/rubenodegard/rby-dashboard/issues">Report Bug</a>
     ·
@@ -45,9 +45,13 @@ A self-hosted dashboard for managing a collection of development tools and vario
 
 ## The Project
 
-TLDR: Specifically built without React Query to learn further state management and syncing local vs remote state. Hard to find a reason not to use React Query.
+TLDR: Use React Query. This project is specifically built without React Query to learn state management and syncing local vs remote state. Hard to find a reason not to use React Query.
+
+This section is going to be more explanatory soon..
 
 ## Video Demonstration
+
+**Click the image/video below to play**
 
 <a href="https://s3-api.udev.no/public-videos/rby-dashboard-video.mp4" target="_blank">
   <div style="position: relative; display: inline-block;">
