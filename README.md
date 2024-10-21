@@ -8,7 +8,7 @@
 A self-hosted dashboard for managing a collection of development tools and various URLs, either standalone or linked to projects.
     <br />
     <br />
-    <a href="demo.developer-console.udev.no">View Demo (Requires login, locked temporarily)</a>
+    <a href="dashboard.rby.no">View Demo (Requires login, locked temporarily)</a>
     ·
     <a href="https://github.com/rubenodegard/rby-dashboard/issues">Report Bug</a>
     ·
@@ -100,7 +100,7 @@ created manually your dashboard at Kinde.
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/rubenodegard/developer-dashboard.git
+   git clone https://github.com/rubenodegard/rby-dashboard.git
    ```
 2. Install NPM packages
    ```sh
