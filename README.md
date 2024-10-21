@@ -5,7 +5,7 @@
 <h3 align="center">RBY Dashboard</h3>
 
 <p align="center">
-A self-hosted dashboard for managing a collection of development tools </br> and various URLs, either standalone or linked to projects.
+A self-hosted dashboard for managing a collection of development tools and various URLs, either standalone or linked to projects.
     <br />
     <br />
     <a href="demo.developer-console.udev.no">View Demo (Requires login)</a>
@@ -20,7 +20,7 @@ A self-hosted dashboard for managing a collection of development tools </br> and
   <summary>Table of Contents</summary>
   <ol>
     <li>
-      <a href="#about-the-project">The Project</a>
+      <a href="#the-project">The Project</a>
       <ul>
         <li><a href="#video-demonstration">Video Demonstration</a></li>
         <li><a href="#built-with">Built With</a></li>
@@ -45,14 +45,13 @@ A self-hosted dashboard for managing a collection of development tools </br> and
 
 ## The Project
 
-TLDR: Specifically built without React Query to learn further state management and syncing local vs remote state.
+TLDR: Specifically built without React Query to learn further state management and syncing local vs remote state. Hard to find a reason not to use React Query.
 
 ## Video Demonstration
 
 <a href="https://s3-api.udev.no/public-videos/rby-dashboard-video.mp4" target="_blank">
   <div style="position: relative; display: inline-block;">
     <img src="https://s3-api.udev.no/public-images/developer-dashboard.png" alt="RBY Dashboard Video" style="width: 100%; max-width: 100%;" />
-    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1wbGF5Ij48cG9seWdvbiBwb2ludHM9IjYgMyAyMCAxMiA2IDIxIDYgMyIvPjwvc3ZnPg==" alt="Play Icon" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px;" />
   </div>
 </a>
 
@@ -143,9 +142,7 @@ created manually your dashboard at Kinde.
 
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional
-screenshots, code examples and demos work well in this space. You may also link
-to more resources.
+...
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -242,6 +239,6 @@ Ruben Odegard (Ruben Ødegård) - [Homepage](https://rubenodegard.com) -
 contact@rubenodegard.com
 
 Project Link:
-[https://github.com/rubenodegard/developer-console](https://github.com/RubenOdegard/developer-dashboard)
+[https://github.com/rubenodegard/rby-dashboard](https://github.com/RubenOdegard/rby-dashboard)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
