@@ -51,7 +51,7 @@ This section is going to be more explanatory soon..
 
 ## Video Demonstration
 
-**Click the image/video below to play**
+**Click the image below to play** - *video wont play on mobile because of codec issue, will fixed soon.*
 
 <a href="https://s3-api.udev.no/public-videos/rby-dashboard-video.mp4" target="_blank">
   <div style="position: relative; display: inline-block;">
