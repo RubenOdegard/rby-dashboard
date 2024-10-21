@@ -51,13 +51,9 @@ This section is going to be more explanatory soon..
 
 ## Video Demonstration
 
-**Click the image below to play** - *video wont play on mobile because of codec issue, will fixed soon.*
+[View the video on Mac/PC](https://s3-api.udev.no/public-videos/rby-dashboard-video.mp4)
 
-<a href="https://s3-api.udev.no/public-videos/rby-dashboard-video.mp4" target="_blank">
-  <div style="position: relative; display: inline-block;">
-    <img src="https://s3-api.udev.no/public-images/developer-dashboard.png" alt="RBY Dashboard Video" style="width: 100%; max-width: 100%;" />
-  </div>
-</a>
+[Watch the mobile version here](https://www.youtube.com/watch?v=Wp9TTuOef6A)
 
 <!-- Content -->
 
