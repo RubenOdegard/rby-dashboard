@@ -11,8 +11,8 @@ if (!process.env.TURSO_AUTH_TOKEN) {
 
 // Merge configurations based on environment
 export const connection = {
-	// url: process.env.TURSO_DATABASE_URL,
-	url: "file:local.db",
+	url: process.env.TURSO_DATABASE_URL,
+	// url: "file:local.db",
 	authToken: process.env.TURSO_AUTH_TOKEN,
 };
 
