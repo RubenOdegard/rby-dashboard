@@ -21,7 +21,7 @@ import type { ProjectUrlData } from "@/types/types";
 import autoAnimate from "@formkit/auto-animate";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { FolderIcon, InfoIcon, XIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ImageWithLink from "../collections/image-with-link";
 import TextDescription from "../collections/text-description";
 import TextDomain from "../collections/text-domain";
@@ -86,7 +86,7 @@ const ProjectUrlDisplay = () => {
 		}
 	};
 
-	const fetchMetadata = async () => {
+	const fetchMetadata = useCallback(async () => {
 		if (!filteredProjectUrLs || filteredProjectUrLs.length === 0) {
 			return;
 		}
@@ -114,7 +114,7 @@ const ProjectUrlDisplay = () => {
 			return a.title.localeCompare(b.title);
 		});
 		setMetadata(filteredMetadata);
-	};
+	}, [filteredProjectUrLs]);
 
 	const parent = useRef(null);
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
