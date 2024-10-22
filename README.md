@@ -33,7 +33,6 @@ A self-hosted dashboard for managing a collection of development tools and vario
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -45,9 +44,43 @@ A self-hosted dashboard for managing a collection of development tools and vario
 
 ## The Project
 
-TLDR: Use React Query. This project is specifically built without React Query to learn state management and syncing local vs remote state. Hard to find a reason not to use React Query.
+The goal of this project was to build a dashboard to collect and manage urls from various sources, allowing for easy organization and linking them to specific projects. Revisiting an older project after a long period can make it challenging to quickly grasp the codebase. By gathering urls for tools, frameworks, libraries, etc. in one place, I can easily track what I've used in the past and what I may want to consider using in future projects. In the project section I also have handy direct links to live demos and github repos.
 
-This section is going to be more explanatory soon..
+I specifically did not use React Query for this, as I wanted to learn to control state management and syncing local vs remote state. I might consider converting to React Query in the future and keep a branch with the current state management. TLDR: Use React Query, what a mess.
+
+The project is ment to be self-hostable. In the current state it spins up a persistent sqlite database in developement mode, but uses TursoDB (Cloud) in production. 
+As of now, it can be hosted serverlessly if needed, as it doesnt need a server to run with the current config.
+
+---
+
+*Thinking out loud here..*
+
+
+What if I add a env variable to specify if the project is hosted on server or serverless.
+That way I can have more fine grain control on which services and tools to spin up along with the project itself, and you can spin up one docker container to have it all up and running.
+
+For example:
+```
+RUNTIME: server | serverless
+```
+
+**Server**
+- Local libSQL (default) or TursoDB Cloud (optionally)
+- Redis database for rate limiting
+- ...
+- ...
+
+**Serverless**
+- TursoDB Cloud
+- No redis database for rate limiting
+    - *Of course you can connect to an external service, but I want to stay away from it in this instance.*
+    *This way I have to tackle the problem of optionally rate limiting based on the runtime.*
+
+As the project is ment to be self-hosted on a server, the options will be limited when it comes to serverless but I would want it to still run with the right config. The point is to connect to as few external services as possible (preferably none), and not take geographical database placement into consideration when it comes to performance. 
+
+*I might have to come back to this idea..*
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Video Demonstration
 
@@ -140,11 +173,6 @@ created manually your dashboard at Kinde.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Usage
-
-...
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ROADMAP -->
 
@@ -161,9 +189,7 @@ created manually your dashboard at Kinde.
 - [x] **Server Actions** (CRUD actions against database)
 - [x] **Protect API routes and Server Actions with Authorization**
 - [x] **Timeouts for database and API calls**
-- [ ] **Ratelimiting for database and API calls**
 - [ ] **Custom Login Page** 
-- [ ] **Custom 404 Page**
 - [x] **Animations** 
 - [x] **Confirmation dialogs on critical actions**
 
@@ -183,9 +209,9 @@ created manually your dashboard at Kinde.
 - [x] **Delete a URL from a Project**
 - [x] **Delete a Project**
 
-**Miscellaneous maybes**
-- [ ] **? Add Notes to a Collection Item ?**
-- [ ] **? Add Notes to a Project ?**
+**Considerations**
+- [ ] **Add Notes to a Collection Item?**
+- [ ] **Add Notes to a Project?**
 - [ ] **Fetch and display the README.md from a optional Github Repo on a Project** (automatically)
 
 See the
