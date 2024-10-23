@@ -35,7 +35,7 @@ export function Diagnostics() {
 
 			toastSuccess(`Deleted ${urlToDelete} from the database.`);
 		} catch (error) {
-			toastError(`Failed to delete ${urlToDelete} from the database.`);
+			toastError(`Failed to delete ${urlToDelete} from the database. Error: ${error}`);
 		}
 	};
 

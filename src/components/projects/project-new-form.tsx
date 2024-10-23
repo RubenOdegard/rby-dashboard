@@ -22,7 +22,6 @@ import type { ProjectFormData } from "@/types/projectFormData";
 import type { Projects } from "@/types/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EyeIcon, GithubIcon, LinkIcon, TrashIcon } from "lucide-react";
-import { Project } from "next/dist/build/swc";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
