@@ -47,5 +47,7 @@ local.db-wal
 # db
 *.db*
 
+# changelog
+change-log.md
 
 
