@@ -21,7 +21,7 @@ import { useStore } from "@/stores/store";
 import type { UrlFormData } from "@/types/urlFormData";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LinkIcon, RefreshCwIcon } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -56,6 +56,9 @@ const CollectionNewUrlForm = () => {
 		imageUrl: string;
 		description: string;
 	}>({ url: "", title: "", imageUrl: "", description: "" });
+	const [isPending, startTransition] = useTransition();
+
+	// Auth
 	const { user } = useKindeBrowserClient();
 
 	const sortedCategories = [...collectionCategories].sort((a, b) => a.localeCompare(b));
@@ -127,40 +130,42 @@ const CollectionNewUrlForm = () => {
 	};
 
 	const handleAddUrl = async (data: UrlFormData) => {
-		const category = isNewCategory ? newCategory : selectedCategory;
+		startTransition(async () => {
+			const category = isNewCategory ? newCategory : selectedCategory;
 
-		formSchema.parse(data);
+			formSchema.parse(data);
 
-		if (urls.some((url) => url.url === data.url)) {
-			toastError("URL already exists in Collections.");
-			return;
-		}
-		if (category === "" || undefined) {
-			toastError("Please select or input a new category.");
-			return;
-		}
+			if (urls.some((url) => url.url === data.url)) {
+				toastError("URL already exists in Collections.");
+				return;
+			}
+			if (category === "" || undefined) {
+				toastError("Please select or input a new category.");
+				return;
+			}
 
-		if (!user) {
-			throw new Error("User not found");
-		}
-		try {
-			await insertUrlToDatabase({
-				url: data.url,
-				category: category,
-				favorite: false,
-				owner: user.id,
-			});
-			setUrls(await fetchUrlDataFromDatabase());
-			toastSuccess(`Successfully added ${data.url}`);
-		} catch (error) {
-			toastError(`Error adding ${data.url}: ${error}`);
-			return;
-		}
-		if (isNewCategory) {
-			setCollectionCategories([...collectionCategories, newCategory]);
-		}
-		handleReset();
-		setDialogOpen(false);
+			if (!user) {
+				throw new Error("User not found");
+			}
+			try {
+				await insertUrlToDatabase({
+					url: data.url,
+					category: category,
+					favorite: false,
+					owner: user.id,
+				});
+				setUrls(await fetchUrlDataFromDatabase());
+				toastSuccess(`Successfully added ${data.url}`);
+			} catch (error) {
+				toastError(`Error adding ${data.url}: ${error}`);
+				return;
+			}
+			if (isNewCategory) {
+				setCollectionCategories([...collectionCategories, newCategory]);
+			}
+			handleReset();
+			setDialogOpen(false);
+		});
 	};
 
 	const handleFetchPreviewMetadata = async () => {
@@ -271,8 +276,8 @@ const CollectionNewUrlForm = () => {
 									</Select>
 								)}
 							</div>
-							<Button type="submit" className="rounded">
-								Add URL
+							<Button type="submit" disabled={isPending} className="rounded">
+								{isPending ? "Adding..." : "Add URL"}
 							</Button>
 						</form>
 					</DialogDescription>
