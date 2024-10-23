@@ -42,16 +42,22 @@ export const ProjectUrlForm = () => {
 				setSelectedUrl(value);
 			}
 
+			// Get project id based on the url
 			const projectId = await getProjectIdFromUrl(selectedProject, projects);
 			if (projectId) {
+				// Fetch project urls based on project id
 				const fetchedUrls = await fetchProjectUrls(projectId);
 
+				// Check if fetchedUrls is an array
 				if (Array.isArray(fetchedUrls)) {
+					// Filter out null urls
 					const filteredUrls = fetchedUrls.filter((item: SelectUrl) => item.url !== null);
+					// Set filtered project urls
 					const newFilteredProjectUrls: FilteredProjectUrlsType = {
 						urls: filteredUrls,
 						projectUrls: [],
 					};
+					// set state
 					setFilteredProjectUrLs(newFilteredProjectUrls);
 				}
 			}
@@ -64,14 +70,20 @@ export const ProjectUrlForm = () => {
 	};
 
 	const handleAddUrl = async (value: string) => {
+		// Set schema for validation check
 		const UrlSchema = z.string().url();
 		try {
+			// Validate url
 			const validatedUrl = UrlSchema.parse(value);
+			// Check if url exists in local state
 			const url = urls.find((url) => url.url === validatedUrl);
 			if (url) {
+				// Get project id
 				const projectId = await getProjectIdFromUrl(selectedProject, projects);
 				if (projectId) {
+					// Add url to project
 					await addProjectUrlToDatabase(projectId, url.id);
+					// Remove url from unused urls
 					setFilterUnusedUrls(filterUnusedUrls.filter((url) => url.url !== validatedUrl));
 					toastSuccess("Successfully added URL to project");
 					setSelectedUrl("");
@@ -88,8 +100,11 @@ export const ProjectUrlForm = () => {
 	};
 
 	const handleFilterUrls = () => {
+		// Get project id
 		const projectId = projects.find((project) => project.project === selectedProject)?.id;
+		// Filter urls based on project id
 		const projectUrlIds = projectUrls.filter((url) => url.projectId === projectId).map((url) => url.urlId);
+		// Filter urls based on project id
 		const unusedUrLs = urls
 			.filter((url) => !projectUrlIds.includes(url.id))
 			.map(({ id, url, category, favorite, createdAt }) => ({
@@ -101,12 +116,15 @@ export const ProjectUrlForm = () => {
 				owner: "",
 			}));
 
+		// Set state
 		setFilterUnusedUrls(unusedUrLs);
 	};
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
+		// run the function to grab the project urls and set the unused urls to state
 		handleFilterUrls();
+		// Check if showFullUrl is in local storage
 		const showFullUrlFromLocalStorage = localStorage.getItem("showFullUrl");
 		if (showFullUrlFromLocalStorage) {
 			setShowFullUrl(JSON.parse(showFullUrlFromLocalStorage));
