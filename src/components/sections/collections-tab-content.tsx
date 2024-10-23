@@ -19,7 +19,7 @@ interface CollectionContentProps {
 const CollectionsTabContent = ({ metadata }: CollectionContentProps) => {
 	const selectedCategory = useStore((state) => state.selectedCategory);
 	const lowercaseSelectedCategory = selectedCategory.toLowerCase();
-	const { setUrls, urls, toggleFavorite, viewExpanded } = useStore();
+	const { setUrls, urls, toggleFavorite, viewExpanded, setSelectedCategory } = useStore();
 
 	let filteredMetadata: Metadata[] = [];
 	if (lowercaseSelectedCategory === "all") {
@@ -32,8 +32,11 @@ const CollectionsTabContent = ({ metadata }: CollectionContentProps) => {
 
 	const handleToggleFavorite = async (metadata: Metadata) => {
 		try {
+			// Toggle favorite in local state
 			toggleFavorite(metadata.id, !metadata.favorite);
+			// Toggle favorite in database
 			await updateFavoriteStatusInDatabase(metadata.id, !metadata.favorite);
+			// Notify user
 			const toastMessage = metadata.favorite
 				? `Removed ${capitalizeFirstLetter(getDomainName(metadata.url))} from your favorites.`
 				: `Added ${capitalizeFirstLetter(getDomainName(metadata.url))} to your favorites.`;
@@ -45,8 +48,30 @@ const CollectionsTabContent = ({ metadata }: CollectionContentProps) => {
 
 	const handleDelete = async (metadata: Metadata) => {
 		try {
+			// Get category
+			const category = metadata.category.toLowerCase();
+			// Filter urls by category
+			const categoryUrls = urls.filter((url) => url.category.toLowerCase() === category);
+			// Delete url from database
 			await deleteUrlFromDatabaseById(metadata.id);
-			setUrls(urls.filter((url) => url.id !== metadata.id));
+			// If deleting the last url in a category, set selectedCategory to "All"
+			if (categoryUrls.length === 1 && category !== "all") {
+				// await for 1000ms to match animation
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+				setSelectedCategory("all");
+			}
+
+			// Remove url from state
+			if (Array.isArray(urls)) {
+				setUrls(urls.filter((url) => url.id !== metadata.id));
+			}
+
+			// Handle case where there is only 1 url in the category when deleting
+			if (urls.length === 1) {
+				window.location.reload();
+			}
+
+			// Notify user of deletion
 			toastSuccess(`${metadata.url} has been deleted.`);
 		} catch (error) {
 			toastError(`Error deleting ${metadata.url}. ${error}`);
