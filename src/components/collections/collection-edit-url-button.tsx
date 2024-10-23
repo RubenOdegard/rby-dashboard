@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/menubar";
 import { cn } from "@/lib/utils";
 import { MoreHorizontal, StarIcon, Trash } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 interface CollectionEditUrlButtonProps {
 	metadataItem: any;
@@ -29,6 +29,7 @@ interface CollectionEditUrlButtonProps {
 
 const CollectionEditUrlButton = ({ metadataItem, onToggleFavorite, onDelete }: CollectionEditUrlButtonProps) => {
 	const [open, setOpen] = useState(false);
+	const [isPending, startTransition] = useTransition();
 
 	const openDialog = () => {
 		setOpen(true);
@@ -36,6 +37,12 @@ const CollectionEditUrlButton = ({ metadataItem, onToggleFavorite, onDelete }: C
 
 	const handleClose = () => {
 		setOpen(false);
+	};
+
+	const handleDelete = (metadataItem: any) => {
+		startTransition(() => {
+			onDelete(metadataItem);
+		});
 	};
 
 	return (
@@ -75,7 +82,9 @@ const CollectionEditUrlButton = ({ metadataItem, onToggleFavorite, onDelete }: C
 						</AlertDialogHeader>
 						<AlertDialogFooter>
 							<AlertDialogCancel>Cancel</AlertDialogCancel>
-							<AlertDialogAction onClick={() => onDelete(metadataItem)}>Delete URL</AlertDialogAction>
+							<AlertDialogAction disabled={isPending} onClick={() => handleDelete(metadataItem)}>
+								{isPending ? "Deleting..." : "Delete"}
+							</AlertDialogAction>
 						</AlertDialogFooter>
 					</AlertDialogContent>
 				</AlertDialog>
