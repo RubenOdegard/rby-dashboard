@@ -17,18 +17,17 @@ import type { SelectProjectUrl, SelectUrl } from "@/db/schema";
 import { getProjectIdFromUrl, toastError, toastSuccess } from "@/lib/utils";
 import { useStore } from "@/stores/store";
 import type { Metadata } from "@/types/metadata";
-import type { ProjectUrlData } from "@/types/types";
 import autoAnimate from "@formkit/auto-animate";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { FolderIcon, InfoIcon, XIcon } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ImageWithLink from "../collections/image-with-link";
 import TextDescription from "../collections/text-description";
 import TextDomain from "../collections/text-domain";
 import TextTitle from "../collections/text-title";
 
-interface FilteredProjectUrLsType {
-	urls: ProjectUrlData;
+interface FilteredProjectUrlsType {
+	urls: SelectUrl;
 	projectUrls: SelectProjectUrl;
 }
 
@@ -39,7 +38,7 @@ interface MetadataModified extends Metadata {
 
 const ProjectUrlDisplay = () => {
 	const { selectedProject, projects, filterUnusedUrls } = useStore();
-	const [filteredProjectUrLs, setFilteredProjectUrLs] = useState<FilteredProjectUrLsType[]>([]);
+	const [filteredProjectUrLs, setFilteredProjectUrLs] = useState<FilteredProjectUrlsType[]>();
 	const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
 	const [metadata, setMetadata] = useState<MetadataModified[]>([]);
 	const { user } = useKindeBrowserClient();
@@ -64,6 +63,7 @@ const ProjectUrlDisplay = () => {
 	};
 
 	const handleDeleteProjectUrl = async (project: string, urlId: number) => {
+		// Check if user is logged in
 		if (!user) {
 			toastError("Error deleting url.");
 			return;
@@ -71,26 +71,33 @@ const ProjectUrlDisplay = () => {
 
 		const projectId = projects.find((item) => item.project === project)?.id;
 
+		// Early return if we cant find the project
 		if (!projectId) {
 			toastError("Project not found");
 			return;
 		}
 
 		try {
+			// Delete the URL from the database
 			await deleteProjectUrlFromDatabaseByUrl(projectId, urlId);
+			// Remove the deleted URL from the local state
 			setFilteredProjectUrLs((prev) => (prev ? prev.filter((urlObject) => urlObject.urls.id !== urlId) : []));
+			// Remove the deleted URL from the local state
 			setMetadata((prev) => (prev ? prev.filter((meta) => meta.urls.id !== urlId) : []));
+			// Show success toast
 			toastSuccess("Successfully deleted URL from project");
 		} catch (error) {
 			toastError(`Error deleting ${urlId}: ${error}`);
 		}
 	};
 
-	const fetchMetadata = useCallback(async () => {
+	const fetchMetadata = async () => {
+		// Early return  if we dont have any project URLs
 		if (!filteredProjectUrLs || filteredProjectUrLs.length === 0) {
 			return;
 		}
 
+		// Map over the project URLs and fetch the metadata
 		const promises = filteredProjectUrLs.map(async (urlObject) => {
 			try {
 				const response = await fetch(`/api/fetchMetadata?url=${encodeURIComponent(urlObject.urls.url)}`);
@@ -104,25 +111,31 @@ const ProjectUrlDisplay = () => {
 			}
 		});
 
+		// Wait for all promises to resolve
 		const metadata = await Promise.all(promises);
+		// Filter out any null values
 		const filteredMetadata = metadata.filter((item) => item !== null);
+		// Sort the metadata
 		filteredMetadata.sort((a, b) => {
 			const categoryComparison = a.urls.category.localeCompare(b.urls.category);
+
 			if (categoryComparison !== 0) {
 				return categoryComparison;
 			}
+
+			// Sort by title
 			return a.title.localeCompare(b.title);
 		});
 		setMetadata(filteredMetadata);
-	}, [filteredProjectUrLs]);
+	};
 
 	const parent = useRef(null);
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <Animation library is not exhaustive>
 	useEffect(() => {
 		parent.current && autoAnimate(parent.current);
 	}, [parent]);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <Manual overwrite, useEffect has to be dependent on filterUnusedURLs to correctly handle component remount>
 	useEffect(() => {
 		try {
 			fetchMetadata();
@@ -131,32 +144,33 @@ const ProjectUrlDisplay = () => {
 		}
 	}, [filteredProjectUrLs]);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <Manual overwrite, useEffect has to be dependent on filterUnusedURLs to correctly handle component remount>
 	useEffect(() => {
 		const fetchFilteredUrls = async () => {
+			// Get project id
 			const projectId = await getProjectIdFromUrl(selectedProject, projects);
 			if (projectId) {
-				const fetchedUrls: ProjectUrlData[] = await fetchProjectUrls(projectId);
-				if (Array.isArray(fetchedUrls)) {
-					const filteredUrls = fetchedUrls.map((item) => ({
-						urls: item,
-						projectUrls: {
-							owner: "",
-							projectId: projectId,
-							urlId: item.id,
-						},
-					}));
+				// Fetch filtered urls
+				const fetchedUrls = await fetchProjectUrls(projectId);
+				if (fetchedUrls) {
+					// Cast to unknown type before setting a new type after filtering
+					const filteredUrls = fetchedUrls.filter(
+						(item) => item.url !== null,
+					) as unknown as FilteredProjectUrlsType[];
+					// Set state
 					setFilteredProjectUrLs(filteredUrls);
 				}
 			} else {
-				toastError("Error when loading URLs");
+				toastError("Error when loading URL's");
 			}
 		};
+		// call internal function
 		fetchFilteredUrls();
-	}, [filterUnusedUrls, selectedProject, projects]);
+	}, [filterUnusedUrls]);
 
 	return (
 		<div>
+			{/* Information text if there is no urls tied to a project. */}
 			{filteredProjectUrLs && filteredProjectUrLs.length < 1 && (
 				<div className="flex items-center gap-2">
 					<InfoIcon size={20} className="text-yellow-400" />
@@ -214,11 +228,12 @@ const ProjectUrlDisplay = () => {
 								imageUrl={item.imageUrl}
 								domain={item.domain}
 								id={item.urls.id}
-								favorite={false}
+								favorite={item.urls.favorite}
 								handleImageHover={handleImageHover}
 								handleImageLeave={handleImageLeave}
 								className="order-first mt-4"
 							/>
+
 							<TextTitle title={item.title} className="mt-4" />
 							<TextDescription description={item.description} />
 							<div className="flex">
