@@ -51,35 +51,6 @@ I specifically did not use React Query for this, as I wanted to learn to control
 The project is ment to be self-hostable. In the current state it spins up a persistent sqlite database in developement mode, but uses TursoDB (Cloud) in production. 
 As of now, it can be hosted serverlessly if needed, as it doesnt need a server to run with the current config.
 
----
-
-*Thinking out loud here..*
-
-
-What if I add a env variable to specify if the project is hosted on server or serverless.
-That way I can have more fine grain control on which services and tools to spin up along with the project itself, and you can spin up one docker container to have it all up and running.
-
-For example:
-```
-RUNTIME: server | serverless
-```
-
-**Server**
-- Local libSQL (default) or TursoDB Cloud (optionally)
-- Redis database for rate limiting
-- ...
-- ...
-
-**Serverless**
-- TursoDB Cloud
-- No redis database for rate limiting
-    - *Of course you can connect to an external service, but I want to stay away from it in this instance.*
-    *This way I have to tackle the problem of optionally rate limiting based on the runtime.*
-
-As the project is ment to be self-hosted on a server, the options will be limited when it comes to serverless but I would want it to still run with the right config. The point is to connect to as few external services as possible (preferably none), and not take geographical database placement into consideration when it comes to performance. 
-
-*I might have to come back to this idea..*
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Video Demonstration
