@@ -1,6 +1,6 @@
 <a name="readme-top"></a>
 
-![rby-dashboard-image](https://s3-api.udev.no/public-images/developer-dashboard.png)
+![rby-dashboard-image](https://minio.udev.no/rby-public/rby-dashboard-image.png)
 
 <h3 align="center">RBY Dashboard</h3>
 
@@ -55,7 +55,7 @@ As of now, it can be hosted serverlessly if needed, as it doesnt need a server t
 
 ## Video Demonstration
 
-[View the video on Mac/PC](https://s3-api.udev.no/public-videos/rby-dashboard-video.mp4)
+[View the video on Mac/PC](https://minio.udev.no/rby-public/rby-dashboard-video.mp4)
 
 [Watch the mobile version here](https://www.youtube.com/watch?v=Wp9TTuOef6A)
 
